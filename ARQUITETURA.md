@@ -105,6 +105,18 @@ fica onde está e a linha está pronta para envio.
 anterior. Digitando da esquerda para a direita, o efeito é o de um backspace
 comum — a navegação não custa nada a quem não a usa.
 
+**O tempo da rodada corre sozinho; o mostrador é que precisa de intervalo.**
+`percurso` guarda apenas o instante de início e calcula a duração no momento da
+leitura. Por isso o tempo nunca depende de alguém o incrementar, e abrir ou
+fechar o relatório não o altera.
+
+O que congelava era só a exibição, escrita uma única vez na abertura. Enquanto a
+janela está aberta e a partida em andamento, `modals` reescreve `#rel-tempo` a
+cada `INTERVALO_CRONOMETRO`. O intervalo nasce em `abrirRelatorio` e morre em
+`fecharRelatorio` — por onde passam os quatro caminhos de fechamento — e se
+desliga sozinho se a partida terminar com a janela aberta. Quem decide se ainda
+há o que acompanhar é o core, por `percurso.emAndamento`.
+
 **Medidas em variáveis CSS.** O tamanho da célula e da tecla é `--celula` e
 `--tecla-largura`. Os pontos de quebra redefinem essas variáveis em vez de
 reescrever as regras dos componentes.

@@ -166,6 +166,13 @@
       });
     },
 
+    /* Verdadeiro enquanto a partida corrente não foi
+       encerrada. A interface consulta isto para saber se o
+       tempo exibido ainda muda. */
+    emAndamento: function () {
+      return !!(this.atual && !this.atual.fim);
+    },
+
     /* Duração corrente: encerrada usa o valor final, em
        andamento usa o tempo até agora. */
     duracao: function () {

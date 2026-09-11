@@ -28,6 +28,11 @@ window.TERM = window.TERM || {};
     ATRASO_RELATORIO_VITORIA: 900,
     ATRASO_RELATORIO_DERROTA: 700,
 
+    /* Passo do cronômetro do relatório. Menor que um segundo
+       para que a virada do mostrador não atrase até um segundo
+       inteiro em relação ao tempo real. */
+    INTERVALO_CRONOMETRO: 250,
+
     /* Estados possíveis de uma letra avaliada */
     ESTADO: {
       CORRETA: "correct",

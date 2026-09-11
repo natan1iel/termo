@@ -10,12 +10,14 @@
 (function (TERM) {
   "use strict";
 
+  var cfg = TERM.config;
   var utils = TERM.utils;
 
   TERM.modals = {
     login: null,
     relatorio: null,
     resolver: null,
+    cronometro: null,
 
     init: function () {
       this.login = document.querySelector("#modal-login");
@@ -79,7 +81,7 @@
       this.definirTexto("#rel-jogos", dados.jogos);
       this.definirTexto("#rel-sequencia", dados.sequencia);
       this.definirTexto("#rel-recorde", dados.recorde);
-      this.definirTexto("#rel-tempo", utils.formatarTempo(TERM.percurso.duracao()));
+      this.atualizarTempo();
 
       var veredito = document.querySelector("#rel-veredito");
       var subtitulo = document.querySelector("#rel-tempo-sub");
@@ -103,10 +105,39 @@
       }
 
       this.abrir(this.relatorio, "#btn-sortear");
+
+      /* Com a partida em andamento o relatório é uma consulta:
+         o tempo precisa continuar correndo à vista, e não
+         congelar no instante da abertura. Encerrada a partida,
+         a duração é final e não há o que acompanhar. */
+      if (TERM.percurso.emAndamento()) this.iniciarCronometro();
     },
 
     fecharRelatorio: function () {
+      this.pararCronometro();
       this.fechar(this.relatorio);
+    },
+
+    atualizarTempo: function () {
+      this.definirTexto("#rel-tempo", utils.formatarTempo(TERM.percurso.duracao()));
+    },
+
+    iniciarCronometro: function () {
+      this.pararCronometro();
+      var self = this;
+      this.cronometro = setInterval(function () {
+        /* Encerrar a partida com o relatório aberto congela o
+           valor: sem esta parada, o intervalo seguiria vivo
+           reescrevendo o mesmo número. */
+        if (!TERM.percurso.emAndamento()) return self.pararCronometro();
+        self.atualizarTempo();
+      }, cfg.INTERVALO_CRONOMETRO);
+    },
+
+    pararCronometro: function () {
+      if (this.cronometro === null) return;
+      clearInterval(this.cronometro);
+      this.cronometro = null;
     },
 
     definirTexto: function (seletor, valor) {
