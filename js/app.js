@@ -24,7 +24,7 @@
       TERM.dictionary.init();
       TERM.estatisticas.init();
 
-      TERM.board.init("#grade");
+      TERM.board.init("#grade", this.tratarCliqueCelula.bind(this));
       TERM.keyboard.init("#teclado", this.tratarTecla.bind(this));
       TERM.log.init("#registro");
       TERM.modals.init();
@@ -76,19 +76,42 @@
 
       if (tecla === "ENTER") return this.submeterTentativa();
 
-      if (tecla === "APAGAR") {
-        TERM.partida.apagarLetra();
+      if (tecla === "ESQUERDA") {
+        TERM.partida.mover(-1);
         return this.desenharEntrada();
       }
 
-      if (/^[A-Z]$/.test(tecla) && TERM.partida.adicionarLetra(tecla)) {
+      if (tecla === "DIREITA") {
+        TERM.partida.mover(1);
+        return this.desenharEntrada();
+      }
+
+      if (tecla === "APAGAR") {
+        TERM.partida.apagar();
+        return this.desenharEntrada();
+      }
+
+      if (/^[A-Z]$/.test(tecla)) {
+        TERM.partida.digitar(tecla);
         this.desenharEntrada();
       }
     },
 
+    /* Clique numa célula leva o cursor até ela. Só vale na
+       linha em edição: as anteriores já foram avaliadas e as
+       seguintes ainda não existem para o jogador. */
+    tratarCliqueCelula: function (linha, coluna) {
+      if (TERM.modals.aberta() || TERM.partida.encerrada) return;
+      if (linha !== TERM.partida.linha) return;
+      TERM.partida.irPara(coluna);
+      this.desenharEntrada();
+    },
+
     desenharEntrada: function () {
       if (TERM.partida.encerrada) return;
-      TERM.board.desenharEntrada(TERM.partida.linha, TERM.partida.entrada);
+      TERM.board.desenharEntrada(TERM.partida.linha,
+                                 TERM.partida.letras,
+                                 TERM.partida.cursor);
       this.atualizarBarra();
     },
 
@@ -96,11 +119,12 @@
 
     submeterTentativa: function () {
       var partida = TERM.partida;
-      var entrada = partida.entrada;
 
-      if (entrada.length < cfg.COLUNAS) {
-        return this.recusar(cfg.TEXTOS.faltamLetras(cfg.COLUNAS - entrada.length));
+      if (!partida.completa()) {
+        return this.recusar(cfg.TEXTOS.faltamLetras(partida.lacunas()));
       }
+
+      var entrada = partida.texto();
       if (!TERM.dictionary.existe(entrada)) {
         return this.recusar(cfg.TEXTOS.palavraInvalida(entrada));
       }
@@ -142,6 +166,7 @@
 
       var duracao = TERM.percurso.encerrar(true) || 0;
       TERM.estatisticas.registrar(true, duracao);
+      TERM.board.desativar();
 
       var espera = TERM.board.duracaoRevelacao();
       setTimeout(function () {
@@ -159,6 +184,7 @@
 
       TERM.percurso.encerrar(false);
       TERM.estatisticas.registrar(false, 0);
+      TERM.board.desativar();
 
       var espera = TERM.board.duracaoRevelacao();
       setTimeout(function () {
@@ -251,6 +277,14 @@
       if (evento.key === "Backspace") {
         evento.preventDefault();
         return this.tratarTecla("APAGAR");
+      }
+      if (evento.key === "ArrowLeft") {
+        evento.preventDefault();
+        return this.tratarTecla("ESQUERDA");
+      }
+      if (evento.key === "ArrowRight") {
+        evento.preventDefault();
+        return this.tratarTecla("DIREITA");
       }
 
       var letra = utils.normalizar(evento.key);

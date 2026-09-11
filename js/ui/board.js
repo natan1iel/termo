@@ -9,9 +9,23 @@
 
   TERM.board = {
     elemento: null,
+    aoClicarCelula: null,
 
-    init: function (seletor) {
+    init: function (seletor, aoClicarCelula) {
       this.elemento = document.querySelector(seletor);
+      this.aoClicarCelula = aoClicarCelula;
+
+      /* Delegação: o ouvinte vive no contêiner, que sobrevive
+         às remontagens da grade a cada nova partida. Quem
+         decide se aquele clique vale é o app. */
+      var self = this;
+      this.elemento.addEventListener("click", function (evento) {
+        var celula = evento.target.closest(".celula");
+        if (!celula || !self.aoClicarCelula) return;
+        self.aoClicarCelula(Number(celula.dataset.linha),
+                            Number(celula.dataset.coluna));
+      });
+
       return this;
     },
 
@@ -25,6 +39,8 @@
           var celula = document.createElement("div");
           celula.className = "celula";
           celula.setAttribute("role", "gridcell");
+          celula.dataset.linha = l;
+          celula.dataset.coluna = c;
           linha.appendChild(celula);
         }
         this.elemento.appendChild(linha);
@@ -35,16 +51,35 @@
       return this.elemento.children[indice];
     },
 
-    /* Redesenha a linha em edição a partir do texto digitado. */
-    desenharEntrada: function (indice, texto) {
+    /* Redesenha a linha em edição. Recebe as posições e a
+       coluna do cursor já decididas; não infere nenhuma. */
+    desenharEntrada: function (indice, letras, cursor) {
       var linha = this.linhaDe(indice);
       if (!linha) return;
+
       for (var c = 0; c < cfg.COLUNAS; c++) {
         var celula = linha.children[c];
-        var letra = texto[c] || "";
+        var letra = letras[c] || "";
         celula.textContent = letra;
         celula.classList.toggle("preenchida", letra !== "");
-        celula.classList.toggle("cursor", c === texto.length);
+        celula.classList.toggle("cursor", c === cursor);
+      }
+
+      /* Só a linha em edição aceita clique — a marcação avisa
+         isso ao ponteiro. */
+      for (var l = 0; l < this.elemento.children.length; l++) {
+        this.elemento.children[l].classList.toggle("ativa", l === indice);
+      }
+    },
+
+    /* Encerrada a partida, nenhuma linha aceita clique. */
+    desativar: function () {
+      for (var l = 0; l < this.elemento.children.length; l++) {
+        this.elemento.children[l].classList.remove("ativa");
+        var celulas = this.elemento.children[l].children;
+        for (var c = 0; c < celulas.length; c++) {
+          celulas[c].classList.remove("cursor");
+        }
       }
     },
 

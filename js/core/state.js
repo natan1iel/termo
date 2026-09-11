@@ -29,7 +29,8 @@
     solucao: "",          // com acento, exibida ao revelar
     solucaoNormalizada: "",
     linha: 0,
-    entrada: "",          // letras digitadas na linha corrente
+    letras: [],           // uma posição por coluna, "" onde não há letra
+    cursor: 0,            // coluna em edição
     encerrada: false,
     contabilizada: false, // impede contagem dupla do mesmo resultado
     rodada: 0,
@@ -40,7 +41,7 @@
       this.solucao = solucao;
       this.solucaoNormalizada = TERM.utils.normalizar(solucao);
       this.linha = 0;
-      this.entrada = "";
+      this.limparLinha();
       this.encerrada = false;
       this.contabilizada = false;
       this.rodada = rodada;
@@ -48,15 +49,74 @@
       this.estadosTeclado = {};
     },
 
-    adicionarLetra: function (letra) {
-      if (this.entrada.length >= cfg.COLUNAS) return false;
-      this.entrada += letra;
+    /* ---------- Linha em edição ----------
+
+       A linha é um vetor de posições, não um texto que só
+       cresce no fim. É o que permite cravar uma letra numa
+       coluna conhecida e preencher o resto depois.          */
+
+    limparLinha: function () {
+      this.letras = new Array(cfg.COLUNAS).fill("");
+      this.cursor = 0;
+    },
+
+    /* Só faz sentido com a linha completa; confira antes. */
+    texto: function () {
+      return this.letras.join("");
+    },
+
+    lacunas: function () {
+      return this.letras.filter(function (letra) {
+        return letra === "";
+      }).length;
+    },
+
+    completa: function () {
+      return this.lacunas() === 0;
+    },
+
+    /* Primeira posição livre a partir de uma coluna, ou -1. */
+    proximaLacuna: function (partindoDe) {
+      for (var c = partindoDe; c < cfg.COLUNAS; c++) {
+        if (this.letras[c] === "") return c;
+      }
+      return -1;
+    },
+
+    /* Escreve sob o cursor e salta para a próxima lacuna à
+       direita — saltar, e não andar uma casa, é o que preserva
+       as letras já cravadas: com A e R fixos no fim, digitar
+       da esquerda não passa por cima deles. Sem lacuna à
+       frente, o cursor fica onde está e a linha está pronta. */
+    digitar: function (letra) {
+      this.letras[this.cursor] = letra;
+      var proxima = this.proximaLacuna(this.cursor + 1);
+      if (proxima !== -1) this.cursor = proxima;
       return true;
     },
 
-    apagarLetra: function () {
-      if (this.entrada.length === 0) return false;
-      this.entrada = this.entrada.slice(0, -1);
+    /* Apaga sob o cursor; se ali já estava vazio, recua e
+       apaga a anterior. Digitando da esquerda para a direita,
+       o comportamento é idêntico ao de um backspace comum. */
+    apagar: function () {
+      if (this.letras[this.cursor] !== "") {
+        this.letras[this.cursor] = "";
+        return true;
+      }
+      if (this.cursor === 0) return false;
+      this.cursor--;
+      this.letras[this.cursor] = "";
+      return true;
+    },
+
+    /* Navegação. Ambas param nas bordas, sem dar a volta. */
+    mover: function (passo) {
+      return this.irPara(this.cursor + passo);
+    },
+
+    irPara: function (coluna) {
+      if (coluna < 0 || coluna >= cfg.COLUNAS) return false;
+      this.cursor = coluna;
       return true;
     },
 
@@ -70,7 +130,7 @@
 
     avancarLinha: function () {
       this.linha++;
-      this.entrada = "";
+      this.limparLinha();
     }
   };
 

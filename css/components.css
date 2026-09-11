@@ -36,7 +36,18 @@
 
 .celula.preenchida { border-color: var(--fosforo-medio); color: var(--fosforo); }
 
-.celula.cursor::after {
+/* A linha em edição é a única clicável. */
+.linha.ativa .celula { cursor: pointer; }
+
+/* O cursor agora pousa também sobre célula já preenchida, por
+   isso a borda marca a posição. O traço piscante só aparece
+   onde ainda não há letra — sobre uma letra, ele a empurraria. */
+.celula.cursor {
+  border-color: var(--fosforo);
+  box-shadow: 0 0 0 1px var(--fosforo-medio) inset;
+}
+
+.celula.cursor:not(.preenchida)::after {
   content: '_';
   color: var(--fosforo);
   animation: piscar 1s steps(1) infinite;

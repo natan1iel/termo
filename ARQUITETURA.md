@@ -3,7 +3,8 @@
 ## Estrutura
 
 ```
-app/
+termo/
+├── ARQUITETURA.md          este documento
 ├── index.html              estrutura das quatro telas
 ├── css/
 │   ├── base.css            variáveis de tema, reset, tipografia, efeito CRT
@@ -16,7 +17,7 @@ app/
     │   ├── utils.js        funções puras
     │   ├── dictionary.js   banco de palavras e validação
     │   ├── engine.js       avaliação da tentativa e sorteio
-    │   └── state.js        partida, percurso e estatísticas
+    │   └── state.js        jogador, partida, percurso e estatísticas
     ├── ui/                 apresentação — só desenha
     │   ├── board.js        grade
     │   ├── keyboard.js     teclado virtual
@@ -48,7 +49,7 @@ consulta o core e manda a ui desenhar.
 tecla pressionada
       │
       ▼
-app.tratarTecla ──────────► partida.adicionarLetra        (core/state)
+app.tratarTecla ──────────► partida.digitar / mover       (core/state)
       │                            │
       │                            ▼
       │                     board.desenharEntrada          (ui)
@@ -89,6 +90,20 @@ arquivo muda.
 
 **Textos centralizados em `config.js`.** Mensagens de erro, ajuda e encerramento
 não estão espalhadas pelo código. Ajuste de redação acontece em um lugar só.
+
+**Cursor explícito na linha em edição.** A linha corrente é um vetor de
+posições com um índice de cursor, e não um texto que só cresce no fim. É o que
+permite cravar uma letra numa coluna já deduzida: as setas e o clique na célula
+movem o cursor, e `partida.digitar` escreve onde ele estiver.
+
+Ao digitar, o cursor **salta para a próxima lacuna à direita** em vez de andar
+uma casa. Sem esse salto, quem já fixou as duas últimas letras e volta a
+preencher pela esquerda passaria por cima delas. Sem lacuna à frente, o cursor
+fica onde está e a linha está pronta para envio.
+
+`apagar` limpa a posição sob o cursor; se ali já estava vazio, recua e limpa a
+anterior. Digitando da esquerda para a direita, o efeito é o de um backspace
+comum — a navegação não custa nada a quem não a usa.
 
 **Medidas em variáveis CSS.** O tamanho da célula e da tecla é `--celula` e
 `--tecla-largura`. Os pontos de quebra redefinem essas variáveis em vez de
