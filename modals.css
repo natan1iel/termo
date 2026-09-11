@@ -1,0 +1,182 @@
+/* ============================================================
+   modals.css
+   Janelas sobrepostas: login, relatório e confirmação.
+   Compartilham o mesmo cartão; mudam largura e conteúdo.
+   ============================================================ */
+
+.sobreposicao {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--bg-sobreposicao);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.sobreposicao.aberto { display: flex; }
+
+.cartao {
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid var(--fosforo-medio);
+  background: var(--bg-painel);
+  padding: 16px 20px 20px;
+}
+.cartao.estreito { max-width: 420px; }
+
+.cartao-topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.fechar {
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid var(--borda);
+  color: var(--fosforo-medio);
+  font-size: 12px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.fechar:hover { border-color: var(--fosforo-medio); color: var(--fosforo); }
+.fechar:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+
+/* ---------- textos ---------- */
+
+.veredito {
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 18px;
+  color: var(--fosforo-medio);
+}
+.veredito b { color: var(--fosforo); font-weight: 600; }
+.veredito .marca { font-size: inherit; letter-spacing: normal; }
+.veredito.derrota b { color: var(--ambar); }
+
+.secao-titulo {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--fosforo-medio);
+  margin-bottom: 10px;
+}
+
+.dica {
+  margin-top: 10px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--fosforo-medio);
+}
+.dica b { color: var(--fosforo); font-weight: 600; }
+
+.alerta {
+  border: 1px solid var(--ambar-fraco);
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ambar);
+}
+.alerta b { font-weight: 600; }
+
+/* ---------- estatísticas ---------- */
+
+.estatisticas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-bottom: 22px;
+}
+
+.estatistica {
+  border: 1px solid var(--borda);
+  padding: 9px 4px;
+  text-align: center;
+}
+.estatistica span {
+  display: block;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--fosforo);
+  line-height: 1.2;
+}
+.estatistica small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: var(--fosforo-medio);
+}
+
+/* ---------- tempo ---------- */
+
+.tempo {
+  border: 1px solid var(--borda);
+  padding: 16px 12px;
+  text-align: center;
+  margin-bottom: 22px;
+}
+.tempo-valor {
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: var(--fosforo);
+}
+.tempo-sub {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--fosforo-medio);
+}
+
+/* ---------- campo de texto ---------- */
+
+.campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--fosforo-medio);
+  padding: 10px 12px;
+  margin-bottom: 18px;
+}
+.campo:focus-within { border-color: var(--fosforo); }
+
+.campo-prefixo {
+  font-size: 13px;
+  color: var(--fosforo-medio);
+  white-space: nowrap;
+}
+
+.campo input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--fosforo);
+  caret-color: var(--fosforo);
+}
+.campo input::placeholder { color: var(--fosforo-fraco); }
+
+/* ---------- ações ---------- */
+
+.cartao-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.cartao-acoes .botao { flex: 1; min-width: 130px; text-align: center; }
+
+@media (max-width: 420px) {
+  .estatisticas { grid-template-columns: repeat(2, 1fr); }
+  .cartao { padding: 14px; }
+}

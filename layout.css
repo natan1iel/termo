@@ -1,0 +1,93 @@
+/* ============================================================
+   layout.css
+   Estrutura da página: barra, colunas, palco e painel.
+   Só posicionamento e dimensão; aparência fica em components.
+   ============================================================ */
+
+.aplicacao {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- barra superior ---------- */
+
+.barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border: 1px solid var(--borda);
+  padding: 8px 12px;
+}
+
+.barra-info {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--fosforo-medio);
+}
+.barra-info strong { color: var(--fosforo); font-weight: 600; }
+
+/* ---------- colunas ---------- */
+
+.colunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.palco {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: center;
+}
+
+/* ---------- painel de registro ---------- */
+
+.painel {
+  border: 1px solid var(--borda);
+  background: var(--bg-painel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.painel-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- pontos de quebra ----------
+   840: as colunas empilham e o painel vai para baixo
+   560: o sufixo do comando some da barra
+   420: célula e tecla encolhem                          */
+
+@media (max-width: 840px) {
+  .colunas { grid-template-columns: minmax(0, 1fr); }
+  .painel { order: 2; }
+  .registro { max-height: 150px; }
+  .painel-acoes { flex-direction: row; }
+  .painel-acoes .botao { flex: 1; text-align: center; }
+}
+
+@media (max-width: 560px) {
+  .barra .marca .comando { display: none; }
+}
+
+@media (max-width: 420px) {
+  :root {
+    --celula: 46px;
+    --tecla-largura: 31px;
+    --tecla-altura: 42px;
+  }
+}

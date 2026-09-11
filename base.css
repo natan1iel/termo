@@ -1,0 +1,132 @@
+/* ============================================================
+   base.css
+   Variáveis de tema, reset, tipografia e atmosfera CRT.
+
+   Todas as cores do projeto vivem aqui. Trocar o tema é
+   trocar este bloco, sem tocar em nenhuma regra individual.
+   ============================================================ */
+
+:root {
+  /* Fundos */
+  --bg:              #07090a;
+  --bg-painel:       #0b0f0d;
+  --bg-sobreposicao: rgba(3, 5, 4, 0.9);
+
+  /* Verde fósforo, do mais forte ao quase invisível */
+  --fosforo:        #4af07a;
+  --fosforo-claro:  #63ff8f;
+  --fosforo-medio:  #2f5c39;
+  --fosforo-fraco:  #16281b;
+  --fosforo-morto:  #1f3a26;
+
+  /* Âmbar: letra presente fora de posição */
+  --ambar:      #e0c24a;
+  --ambar-fraco:#6b5c22;
+
+  /* Erro e ação destrutiva */
+  --perigo:      #e05a4a;
+  --perigo-fundo:rgba(224, 90, 74, 0.12);
+
+  /* Traço */
+  --borda: #1a3320;
+
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Medidas da grade e do teclado */
+  --celula: 52px;
+  --celula-gap: 7px;
+  --tecla-altura: 44px;
+  --tecla-largura: 38px;
+  --tecla-gap: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--fosforo);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.5;
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px 32px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- atmosfera CRT ---------- */
+
+.crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 3px,
+    rgba(0, 0, 0, 0.22) 4px
+  );
+}
+.crt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center,
+    rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* ---------- marca ---------- */
+
+.marca {
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  color: var(--fosforo-medio);
+  font-weight: 400;
+}
+.marca b { color: var(--fosforo); font-weight: 600; }
+.marca .comando {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--fosforo-medio);
+}
+
+/* ---------- utilitários ---------- */
+
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.g { color: var(--fosforo); }
+.y { color: var(--ambar); }
+.n { color: var(--fosforo-morto); }
+
+/* ---------- animações ---------- */
+
+@keyframes piscar { 50% { opacity: 0; } }
+
+@keyframes virar {
+  0%   { transform: scaleY(1); }
+  50%  { transform: scaleY(0.05); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes tremer {
+  10%, 90% { transform: translateX(-2px); }
+  30%, 70% { transform: translateX(4px); }
+  50%      { transform: translateX(-4px); }
+}
+
+@keyframes pulsar { 40% { transform: translateY(-6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .celula.cursor::after { opacity: 1; }
+}
