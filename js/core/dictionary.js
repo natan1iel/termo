@@ -43,7 +43,7 @@
   "TRAMA", "TRAVE", "TRIBO", "TRIGO", "TROCA", "TROCO", "TRONO", "TROPA", "TURMA", "UNIÃO",
   "USADO", "USINA", "VALER", "VALOR", "VAPOR", "VARAL", "VAZIO", "VELHO", "VENDA", "VENTO",
   "VERBO", "VERDE", "VERSO", "VIDRO", "VIGIA", "VILÃO", "VINHO", "VIOLA", "VIRAR", "VÍRUS",
-  "VISTA", "VIVER", "VOLTA", "VULTO", "ZEBRA"
+  "VISTA", "VIVER", "VOLTA", "VULTO", "ZEBRA", "PODAM", "TRENS", "FUZIL"
     ],
 
     /* Conjunto normalizado, usado na validação das tentativas.
