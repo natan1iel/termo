@@ -46,6 +46,12 @@
     },
 
     novaPartida: function () {
+      /* O relatório é alcançável durante a execução do
+         solucionador; sortear por baixo dele o deixaria jogando
+         a palavra antiga contra uma solução que já mudou. */
+      if (TERM.solver.emExecucao) return;
+
+      TERM.solver.resolveuUltima = false;
       TERM.estatisticas.aplicarResetPendente();
       TERM.modals.fecharRelatorio();
 
@@ -67,6 +73,10 @@
     /* ---------- Entrada ---------- */
 
     tratarTecla: function (tecla) {
+      /* Enquanto a máquina joga, a entrada humana corromperia a
+         linha que ela monta — e um ENTER submeteria um chute que
+         o histórico do solucionador nunca veria. */
+      if (TERM.solver.emExecucao) return;
       if (TERM.modals.aberta()) return;
 
       if (TERM.partida.encerrada) {
@@ -101,6 +111,7 @@
        linha em edição: as anteriores já foram avaliadas e as
        seguintes ainda não existem para o jogador. */
     tratarCliqueCelula: function (linha, coluna) {
+      if (TERM.solver.emExecucao) return;
       if (TERM.modals.aberta() || TERM.partida.encerrada) return;
       if (linha !== TERM.partida.linha) return;
       TERM.partida.irPara(coluna);
@@ -119,6 +130,10 @@
 
     submeterTentativa: function () {
       var partida = TERM.partida;
+      /* Invariante: partida encerrada não recebe tentativa. Sem
+         isto, uma chamada tardia revelaria a linha de novo e
+         abriria o relatório duas vezes. */
+      if (partida.encerrada) return;
 
       if (!partida.completa()) {
         return this.recusar(cfg.TEXTOS.faltamLetras(partida.lacunas()));
@@ -220,7 +235,9 @@
 
       document.querySelector("#btn-resolver")
         .addEventListener("click", function () {
-          if (!TERM.partida.encerrada) TERM.modals.abrirResolver();
+          if (!TERM.partida.encerrada && !TERM.solver.emExecucao) {
+            TERM.modals.abrirResolver();
+          }
         });
 
       document.querySelector("#btn-sortear")
@@ -270,6 +287,15 @@
         return;
       }
 
+      /* Durante a execução do solucionador só Esc responde, para
+         que exista uma saída do bloqueio. */
+      if (TERM.solver.emExecucao) {
+        if (evento.key === "Escape") {
+          TERM.solver.abortar(cfg.TEXTOS.solverCancelado);
+        }
+        return;
+      }
+
       if (evento.key === "Enter") {
         evento.preventDefault();
         return this.tratarTecla("ENTER");
@@ -292,6 +318,7 @@
     },
 
     consultarRelatorio: function () {
+      if (TERM.solver.emExecucao) return;
       if (!TERM.partida.encerrada) return TERM.modals.abrirRelatorio(null);
       var ultimo = TERM.partida.resultados[TERM.partida.resultados.length - 1];
       var venceu = ultimo && TERM.engine.venceu(ultimo);

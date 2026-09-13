@@ -86,7 +86,16 @@
       var veredito = document.querySelector("#rel-veredito");
       var subtitulo = document.querySelector("#rel-tempo-sub");
 
-      if (desfecho === "X") {
+      if (TERM.solver.resolveuUltima) {
+        /* Partida da máquina: as estatísticas não se moveram e
+           não há tempo medido. Dizer "acertou" aqui leria como
+           defeito, não como exclusão deliberada. */
+        veredito.className = "veredito";
+        veredito.innerHTML = desfecho === "X"
+          ? cfg.TEXTOS.relatorioSolverFalhou(partida.solucao)
+          : cfg.TEXTOS.relatorioSolverVeredito(desfecho);
+        subtitulo.textContent = cfg.TEXTOS.relatorioSolverSub;
+      } else if (desfecho === "X") {
         veredito.className = "veredito derrota";
         veredito.innerHTML = "não acertou — a palavra era <b>" +
                              partida.solucao + "</b>";

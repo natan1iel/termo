@@ -23,7 +23,7 @@ termo/
     │   ├── keyboard.js     teclado virtual
     │   ├── log.js          painel de registro
     │   └── modals.js       janelas sobrepostas
-    ├── solver.js           resolução algorítmica (a implementar)
+    ├── solver.js           aberturas fixas e entropia de Shannon
     └── app.js              orquestração e eventos
 ```
 
@@ -69,6 +69,30 @@ app.submeterTentativa
       └─► encerra ou avança linha
                └─► estatisticas.registrar                  (core/state)
                    modals.abrirRelatorio                   (ui)
+```
+
+## Fluxo do solucionador
+
+```
+solver.executar
+      │
+      ├─► partida.iniciar        mesma palavra, grade limpa   (core/state)
+      ├─► partida.contabilizada = true   ─┐ tiram a partida do
+      ├─► percurso.descartar             ─┘ registro do jogador
+      │
+      ▼
+solver.jogar  ◄──────────────────────────┐
+      │                                  │
+      ├─► filtrarCandidatas              │ enquanto restar
+      ├─► proximaTentativa               │ linha e a partida
+      │      ├── turnos 1-3: abertura    │ não encerrar
+      │      └── turnos 4-6: entropia    │
+      │                                  │
+      ├─► partida.digitar × 5            │
+      ├─► app.submeterTentativa ─────────┤ mesmo caminho do
+      │        (avalia, revela, registra)│ jogador humano
+      │                                  │
+      └─► agendar próximo passo ─────────┘
 ```
 
 ## Decisões que valem explicação
@@ -133,12 +157,58 @@ Sem essa separação, uma tentativa com a letra repetida mais vezes do que a
 solução acende marcações demais. `ARARA` contra `RAPAZ` deve marcar apenas 2 dos
 3 A e 1 dos 2 R — a implementação ingênua marcaria todos.
 
-## O que falta implementar
+## O solucionador
 
-`solver.js` contém o contrato, a função de filtragem de candidatas já pronta e o
-ponto de entrada `executar()`. A interface de acionamento e confirmação está
-completa e já chama essa função. Falta a estratégia de escolha e o laço de
-execução.
+Portado de `entropy_solver.py` do projeto termooo-solver. Duas fases com lógicas
+distintas.
 
-Partida resolvida pelo algoritmo não deve entrar nas estatísticas do jogador nem
-no percurso humano — o descarte já está implementado em `solver.executar`.
+**Fase 1, tentativas 1 a 3: aberturas fixas.** `TRENS`, `PODAM`, `FUZIL` são
+jogadas sempre, nesta ordem, sem olhar o resultado das anteriores — no começo
+todas as palavras são igualmente possíveis e não há informação a que reagir. Elas
+valem pelo conjunto, não uma a uma: cobrem 15 letras distintas sem sobreposição
+(`A D E F I L M N O P R S T U Z`). Isoladamente nenhuma é boa — `FUZIL` está
+entre as piores aberturas possíveis.
+
+**Fase 2, tentativas 4 a 6: entropia de Shannon.** Para cada chute do dicionário,
+agrupa-se o que restou pelo retorno que aquele chute produziria, e mede-se
+
+    H = -Σ p(retorno) · log₂ p(retorno)
+
+O maior H é o chute que separa as candidatas da forma mais equilibrada. Duas
+regras acompanham: com duas candidatas ou menos não se calcula nada, joga-se a
+primeira; e no empate prefere-se a palavra que ainda pode ser a resposta.
+
+**Por que o melhor chute às vezes não pode vencer.** Restando `JUSTO`, `BUSTO`,
+`SUSTO` e `CUSTO`, uma palavra como `ABACA` nunca é a resposta, mas testa `B` e
+`C` de uma vez e separa as quatro. Chutar `JUSTO` teria chance de acertar e, ao
+errar, deixaria três indistinguíveis com dois chutes. Abrir mão de ganhar agora é
+o que garante não perder depois — medido, a alternativa gulosa perde palavras que
+a entropia resolve.
+
+**Duas peças não precisaram ser portadas.** A função de retorno da referência é
+idêntica a `engine.avaliar` (conferido nos 121.104 pares do dicionário, zero
+divergências), e o filtro dela usa a mesma abordagem de `filtrarCandidatas` —
+reavaliar cada palavra e comparar com o retorno observado.
+
+> O outro solucionador do mesmo repositório, `auto_solver.py`, usa um filtro
+> posicional em `strategy.py` que não conta letras e descarta a solução correta
+> em 6.945 dos 37.823 casos com chute de letra repetida. Não copiar aquele.
+
+**Desempenho medido** sobre as 348 palavras: 100% resolvidas, média de 4,07
+tentativas, pior caso 5. As 30 palavras difíceis quase sempre contêm alguma das
+11 letras que as aberturas não testam (`B C G H J K Q V W X Y`).
+
+## A partida da máquina não conta
+
+`partida.contabilizada = true` faz `estatisticas.registrar` sair na primeira
+linha, e `percurso.descartar` anula `registrarTentativa` e `encerrar`. Os dois
+mecanismos já existiam; o solucionador apenas os aciona.
+
+A ordem importa: `partida.iniciar` zera `contabilizada`, então a marcação tem de
+vir **depois** da reinicialização, ou a partida da máquina entra nas estatísticas
+do jogador — o oposto do que a janela de confirmação promete.
+
+Enquanto `solver.emExecucao` é verdadeiro, `tratarTecla`, `tratarCliqueCelula`,
+`novaPartida` e `consultarRelatorio` retornam de imediato. Sem essas travas o
+jogador digitaria na linha que a máquina está montando, e um ENTER submeteria um
+chute que o histórico do solucionador nunca veria. `Esc` interrompe.

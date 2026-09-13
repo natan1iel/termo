@@ -33,6 +33,20 @@ window.TERM = window.TERM || {};
        inteiro em relação ao tempo real. */
     INTERVALO_CRONOMETRO: 250,
 
+    /* ---------- Solucionador ----------
+
+       As três aberturas são jogadas sempre, nesta ordem, sem
+       olhar o resultado das anteriores. Valem pelo conjunto, e
+       não uma a uma: juntas testam 15 letras distintas sem
+       nenhuma sobreposição — A D E F I L M N O P R S T U Z.
+       Da quarta em diante a escolha passa a ser por entropia.  */
+    SOLVER_ABERTURAS: ["TRENS", "PODAM", "FUZIL"],
+
+    /* Folga sobre a duração da revelação antes do próximo
+       chute. Sem ela o passo do solver disputaria o mesmo
+       instante com o desenho que submeterTentativa agenda. */
+    SOLVER_PAUSA: 150,
+
     /* Estados possíveis de uma letra avaliada */
     ESTADO: {
       CORRETA: "correct",
@@ -93,7 +107,37 @@ window.TERM = window.TERM || {};
       naoAcertou: function (palavra) {
         return "a palavra era <b>" + palavra + "</b>";
       },
-      solverPendente: "solucionador ainda não implementado"
+      solverAssumiu: "solucionador assumiu a partida",
+      solverAberturas: function (palavras) {
+        return "abertura fixa: " + palavras.join(" · ");
+      },
+      solverCandidatas: function (quantas) {
+        return quantas + (quantas === 1 ? " candidata restante"
+                                        : " candidatas restantes");
+      },
+      solverEscolha: function (palavra, bits) {
+        return "entropia escolheu <b>" + palavra + "</b> (" + bits + " bits)";
+      },
+      solverResolveu: function (tentativas) {
+        return "resolvido em " + tentativas +
+               (tentativas === 1 ? " tentativa" : " tentativas");
+      },
+      solverInterrompido: function (motivo) {
+        return "execução interrompida — " + motivo;
+      },
+      solverSemCandidatas: "nenhuma candidata compatível restou",
+      solverCancelado: "cancelado pelo jogador",
+      solverRecusada: function (palavra) {
+        return "a grade recusou " + palavra;
+      },
+      relatorioSolverVeredito: function (tentativas) {
+        return "resolvido pelo algoritmo na tentativa <b>" +
+               tentativas + "</b> de 6";
+      },
+      relatorioSolverFalhou: function (palavra) {
+        return "o algoritmo não encontrou — a palavra era <b>" + palavra + "</b>";
+      },
+      relatorioSolverSub: "partida automática — fora do registro de desempenho"
     }
   };
 
