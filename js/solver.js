@@ -3,11 +3,10 @@
    Resolução algorítmica: três aberturas fixas e, da quarta
    tentativa em diante, escolha por entropia de Shannon.
 
-   Portado de entropy_solver.py (termooo-solver). Duas peças da
-   referência não precisaram vir: a função de retorno, porque
-   engine.avaliar já é idêntica a ela, e o filtro, porque
-   filtrarCandidatas abaixo já usa a mesma abordagem — reavaliar
-   cada palavra e comparar com o retorno observado.
+   Não há avaliação própria aqui: engine.avaliar, a mesma função
+   que julga a tentativa do jogador, serve ao solucionador sem
+   adaptação. E filtrarCandidatas apenas reavalia cada palavra e
+   compara com o retorno observado.
 
    ------------------------------------------------------------
    POR QUE TRÊS ABERTURAS FIXAS
@@ -147,8 +146,12 @@
       TERM.percurso.descartar();            // some do percurso humano
 
       this.jogadas = [];
-      this.pool = TERM.dictionary.palavras.map(TERM.utils.normalizar);
-      this.candidatas = this.pool.slice();
+      /* Dois universos distintos: pode-se chutar qualquer
+         palavra aceita, mas só as soluções podem ser a
+         resposta. É o que permite jogar uma palavra que não
+         vence, só para separar as candidatas. */
+      this.pool = TERM.dictionary.validas.map(TERM.utils.normalizar);
+      this.candidatas = TERM.dictionary.solucoes.map(TERM.utils.normalizar);
       this.resolveuUltima = true;
 
       /* A limpeza da tela vai no primeiro passo, não aqui: se o

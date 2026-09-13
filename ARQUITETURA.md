@@ -15,7 +15,7 @@ termo/
     ├── core/               regras — nenhuma linha toca o DOM
     │   ├── config.js       constantes e textos da interface
     │   ├── utils.js        funções puras
-    │   ├── dictionary.js   banco de palavras e validação
+    │   ├── dictionary.js   duas listas: respostas e palavras aceitas
     │   ├── engine.js       avaliação da tentativa e sorteio
     │   └── state.js        jogador, partida, percurso e estatísticas
     ├── ui/                 apresentação — só desenha
@@ -115,6 +115,19 @@ arquivo muda.
 **Textos centralizados em `config.js`.** Mensagens de erro, ajuda e encerramento
 não estão espalhadas pelo código. Ajuste de redação acontece em um lugar só.
 
+**Duas listas de palavras, não uma.** `solucoes` é o que o baralho sorteia;
+`validas` é o que o jogo aceita quando alguém digita. Os dois papéis têm
+exigências opostas e uma lista só não atende às duas: encolhida, recusa
+português legítimo — `FAZER`, `QUERO`, `TENHO`, `CASAS` —, e o jogo parece
+quebrado; ampliada, sorteia palavra que ninguém conhece, e o jogo parece injusto.
+
+A proporção não é detalhe: 10.589 palavras aceitas para 1.469 respostas. A maior
+parte do que vale digitar não vale como resposta — sobretudo conjugações e
+plurais, que o jogador digita o tempo todo e que fazem respostas mornas.
+
+Toda solução é também um chute válido; o contrário não. `PODAM` e `FUZIL`
+existem apenas em `validas`: são aberturas do solucionador, nunca respostas.
+
 **Cursor explícito na linha em edição.** A linha corrente é um vetor de
 posições com um índice de cursor, e não um texto que só cresce no fim. É o que
 permite cravar uma letra numa coluna já deduzida: as setas e o clique na célula
@@ -159,8 +172,7 @@ solução acende marcações demais. `ARARA` contra `RAPAZ` deve marcar apenas 2
 
 ## O solucionador
 
-Portado de `entropy_solver.py` do projeto termooo-solver. Duas fases com lógicas
-distintas.
+Duas fases, com lógicas distintas.
 
 **Fase 1, tentativas 1 a 3: aberturas fixas.** `TRENS`, `PODAM`, `FUZIL` são
 jogadas sempre, nesta ordem, sem olhar o resultado das anteriores — no começo
@@ -185,18 +197,27 @@ errar, deixaria três indistinguíveis com dois chutes. Abrir mão de ganhar ago
 o que garante não perder depois — medido, a alternativa gulosa perde palavras que
 a entropia resolve.
 
-**Duas peças não precisaram ser portadas.** A função de retorno da referência é
-idêntica a `engine.avaliar` (conferido nos 121.104 pares do dicionário, zero
-divergências), e o filtro dela usa a mesma abordagem de `filtrarCandidatas` —
-reavaliar cada palavra e comparar com o retorno observado.
+**O solucionador não tem lógica de avaliação própria.** Ele usa `engine.avaliar`,
+a mesma função que julga a tentativa do jogador, e `filtrarCandidatas` apenas
+reavalia cada palavra e compara com o retorno observado. Como `avaliar` é exata,
+o filtro nunca descarta a solução verdadeira.
 
-> O outro solucionador do mesmo repositório, `auto_solver.py`, usa um filtro
-> posicional em `strategy.py` que não conta letras e descarta a solução correta
-> em 6.945 dos 37.823 casos com chute de letra repetida. Não copiar aquele.
+> Cuidado ao reescrever esse filtro. Uma versão posicional, que trate cada coluna
+> isoladamente sem contar letras, parece equivalente e não é: quando a mesma
+> letra sai amarela numa posição e cinza noutra — o que acontece sempre que o
+> chute tem letra repetida em excesso — ela passa a exigir `letra ∈ palavra` e
+> `letra ∉ palavra` ao mesmo tempo, e a lista zera. Medido, esse erro descartaria
+> a solução correta em 6.945 dos 37.823 casos com chute de letra repetida.
 
-**Desempenho medido** sobre as 348 palavras: 100% resolvidas, média de 4,07
-tentativas, pior caso 5. As 30 palavras difíceis quase sempre contêm alguma das
-11 letras que as aberturas não testam (`B C G H J K Q V W X Y`).
+**Desempenho medido** sobre as 1.469 respostas: 100% resolvidas, média de 4,20
+tentativas; uma única palavra consome os 6 chutes. As difíceis quase sempre
+contêm alguma das 11 letras que as aberturas não testam
+(`B C G H J K Q V W X Y`) — `SUSTO` é o caso extremo, porque sobrevivem a elas
+`JUSTO`, `BUSTO`, `CUSTO` e `SUSTO`, que diferem só na primeira letra.
+
+O solucionador trabalha com os dois universos: chuta de `validas` e filtra sobre
+`solucoes`. É isso que lhe permite jogar uma palavra que não pode vencer só para
+separar as candidatas.
 
 ## A partida da máquina não conta
 

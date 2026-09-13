@@ -81,7 +81,7 @@
 
       sortear: function (ultimaPalavra) {
         if (this.restantes.length === 0) {
-          this.restantes = TERM.utils.embaralhar(TERM.dictionary.palavras);
+          this.restantes = TERM.utils.embaralhar(TERM.dictionary.solucoes);
           if (this.rodada > 0) this.ciclo++;
 
           /* Impede que a última palavra do ciclo anterior seja
