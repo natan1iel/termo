@@ -1,14 +1,7 @@
 /* ============================================================
    app.js
-   Orquestração. Único módulo que conhece todos os outros.
-
-   Fluxo de uma tentativa:
-     entrada do usuário
-       -> app valida contra o dicionário
-       -> engine avalia
-       -> state guarda resultado e percurso
-       -> board, keyboard e log desenham
-       -> app decide encerramento
+   Orquestração. Único módulo que conhece todos os outros:
+   recebe a entrada, consulta o core, manda a ui desenhar.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -46,9 +39,8 @@
     },
 
     novaPartida: function () {
-      /* O relatório é alcançável durante a execução do
-         solucionador; sortear por baixo dele o deixaria jogando
-         a palavra antiga contra uma solução que já mudou. */
+      /* Sortear durante a execução deixaria o solucionador
+         jogando a palavra antiga contra outra solução. */
       if (TERM.solver.emExecucao) return;
 
       TERM.solver.resolveuUltima = false;

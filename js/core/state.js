@@ -1,10 +1,7 @@
 /* ============================================================
    core/state.js
-   Estado da aplicação: partida corrente, estatísticas do
-   jogador e registro de percurso.
-
-   Nenhuma referência ao DOM. A interface lê daqui, nunca
-   guarda estado próprio.
+   Partida corrente, percurso e estatísticas. Sem DOM — a
+   interface lê daqui e nunca guarda estado próprio.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -50,10 +47,9 @@
     },
 
     /* ---------- Linha em edição ----------
-
-       A linha é um vetor de posições, não um texto que só
-       cresce no fim. É o que permite cravar uma letra numa
-       coluna conhecida e preencher o resto depois.          */
+       Vetor de posições, não um texto que só cresce no fim: é
+       o que permite cravar uma letra numa coluna conhecida e
+       preencher o resto depois. */
 
     limparLinha: function () {
       this.letras = new Array(cfg.COLUNAS).fill("");
@@ -83,11 +79,8 @@
       return -1;
     },
 
-    /* Escreve sob o cursor e salta para a próxima lacuna à
-       direita — saltar, e não andar uma casa, é o que preserva
-       as letras já cravadas: com A e R fixos no fim, digitar
-       da esquerda não passa por cima deles. Sem lacuna à
-       frente, o cursor fica onde está e a linha está pronta. */
+    /* Salta para a próxima lacuna em vez de andar uma casa,
+       para não passar por cima de letras já cravadas. */
     digitar: function (letra) {
       this.letras[this.cursor] = letra;
       var proxima = this.proximaLacuna(this.cursor + 1);
@@ -95,9 +88,8 @@
       return true;
     },
 
-    /* Apaga sob o cursor; se ali já estava vazio, recua e
-       apaga a anterior. Digitando da esquerda para a direita,
-       o comportamento é idêntico ao de um backspace comum. */
+    /* Apaga sob o cursor; se já estava vazio, recua e apaga a
+       anterior — igual a um backspace comum. */
     apagar: function () {
       if (this.letras[this.cursor] !== "") {
         this.letras[this.cursor] = "";
@@ -135,11 +127,8 @@
   };
 
   /* ---------- Percurso ----------
-
-     O escopo do trabalho pede o registro do percurso, não só
-     do desempenho: guardamos cada tentativa com o retorno que
-     ela produziu e o tempo decorrido até ali. É esse array que
-     alimenta a análise de dificuldade.                        */
+     Cada tentativa com o retorno que produziu e o tempo até
+     ali — é o que alimenta a análise de dificuldade. */
 
   TERM.percurso = {
     atual: null,
@@ -166,15 +155,12 @@
       });
     },
 
-    /* Verdadeiro enquanto a partida corrente não foi
-       encerrada. A interface consulta isto para saber se o
-       tempo exibido ainda muda. */
+    /* A interface consulta para saber se o tempo ainda muda. */
     emAndamento: function () {
       return !!(this.atual && !this.atual.fim);
     },
 
-    /* Duração corrente: encerrada usa o valor final, em
-       andamento usa o tempo até agora. */
+    /* Encerrada usa o valor final; em andamento, o tempo até agora. */
     duracao: function () {
       if (!this.atual) return null;
       return this.atual.fim
@@ -191,8 +177,7 @@
       return this.atual.duracaoMs;
     },
 
-    /* Partida assumida pelo solucionador não entra no percurso
-       humano: contaminaria a comparação da análise. */
+    /* Partida do solucionador não entra no percurso humano. */
     descartar: function () {
       this.atual = null;
     }
@@ -219,13 +204,8 @@
       return this;
     },
 
-    /* Persistência isolada nestes dois métodos. Para gravar
-       entre sessões, basta trocar o corpo deles:
-
-         carregar: JSON.parse(localStorage.getItem("terminal")) || {...VAZIAS}
-         salvar:   localStorage.setItem("terminal", JSON.stringify(this.dados))
-
-       Nenhum outro ponto do código acessa armazenamento. */
+    /* Únicos pontos que tocariam armazenamento. Para gravar
+       entre sessões, trocar o corpo dos dois por localStorage. */
     carregar: function () {
       return Object.assign({}, VAZIAS);
     },
@@ -234,10 +214,9 @@
       /* sem persistência entre sessões nesta versão */
     },
 
-    /* A derrota NÃO zera a sequência aqui. Se zerasse, o
-       relatório exibido logo depois já mostraria zero e o
-       jogador perderia de vista a série que acabou de fazer.
-       O reset fica marcado e ocorre na próxima partida. */
+    /* A derrota não zera a sequência agora: o relatório logo
+       depois mostraria zero e o jogador perderia de vista a
+       série que acabou de fazer. Zera na próxima partida. */
     registrar: function (venceu, duracaoMs) {
       if (TERM.partida.contabilizada) return;
       TERM.partida.contabilizada = true;

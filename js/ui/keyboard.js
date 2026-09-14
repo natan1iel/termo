@@ -44,8 +44,7 @@
       });
     },
 
-    /* Aplica o estado a uma letra, respeitando a precedência:
-       correta > presente > ausente. O estado nunca regride. */
+    /* O estado de uma letra nunca regride: correta > presente > ausente. */
     atualizarLetra: function (letra, estado) {
       var atual = TERM.partida.estadosTeclado[letra];
       var melhor = TERM.engine.melhorEstado(atual, estado);

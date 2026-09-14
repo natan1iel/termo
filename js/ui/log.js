@@ -1,7 +1,6 @@
 /* ============================================================
    ui/log.js
-   Painel de registro. Cada evento do jogo vira uma linha de
-   saída, no formato de terminal.
+   Painel de registro: cada evento vira uma linha de terminal.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -39,9 +38,7 @@
       this.elemento.scrollTop = this.elemento.scrollHeight;
     },
 
-    /* Abertura da sessão: identificação e regras textuais.
-       O código de cores fica na legenda fixa do painel, que
-       não rola junto com o registro. */
+    /* O código de cores fica na legenda fixa, que não rola junto. */
     abertura: function () {
       this.escrever("boot", "<b>" + cfg.TEXTOS.boot + "</b>");
       cfg.TEXTOS.ajuda.forEach(function (linha) {
@@ -54,8 +51,7 @@
       this.escrever("pronto", cfg.TEXTOS.pronto, "destaque");
     },
 
-    /* Uma tentativa avaliada, com cada par letra+sinal na cor
-       do seu estado. */
+    /* Cada par letra+sinal na cor do seu estado. */
     tentativa: function (numero, palavra, resultado) {
       var conteudo = "";
       for (var i = 0; i < resultado.length; i++) {

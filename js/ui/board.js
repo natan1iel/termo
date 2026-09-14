@@ -15,9 +15,8 @@
       this.elemento = document.querySelector(seletor);
       this.aoClicarCelula = aoClicarCelula;
 
-      /* Delegação: o ouvinte vive no contêiner, que sobrevive
-         às remontagens da grade a cada nova partida. Quem
-         decide se aquele clique vale é o app. */
+      /* No contêiner, que sobrevive às remontagens da grade.
+         Quem decide se o clique vale é o app. */
       var self = this;
       this.elemento.addEventListener("click", function (evento) {
         var celula = evento.target.closest(".celula");
@@ -51,8 +50,7 @@
       return this.elemento.children[indice];
     },
 
-    /* Redesenha a linha em edição. Recebe as posições e a
-       coluna do cursor já decididas; não infere nenhuma. */
+    /* Recebe as posições e o cursor prontos; não infere nada. */
     desenharEntrada: function (indice, letras, cursor) {
       var linha = this.linhaDe(indice);
       if (!linha) return;
@@ -65,8 +63,7 @@
         celula.classList.toggle("cursor", c === cursor);
       }
 
-      /* Só a linha em edição aceita clique — a marcação avisa
-         isso ao ponteiro. */
+      /* Só a linha em edição aceita clique. */
       for (var l = 0; l < this.elemento.children.length; l++) {
         this.elemento.children[l].classList.toggle("ativa", l === indice);
       }
@@ -83,8 +80,7 @@
       }
     },
 
-    /* Revelação escalonada. O callback avisa a cada letra para
-       que o teclado acompanhe no mesmo ritmo. */
+    /* Escalonada; o callback deixa o teclado acompanhar o ritmo. */
     revelar: function (indice, resultado, solucao, aoRevelarLetra) {
       var linha = this.linhaDe(indice);
       resultado.forEach(function (estado, i) {

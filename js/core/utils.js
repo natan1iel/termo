@@ -1,20 +1,14 @@
 /* ============================================================
    core/utils.js
-   Funções puras, sem estado e sem acesso ao DOM.
-
-   Tudo aqui é testável isoladamente: mesma entrada, mesma
-   saída, sem efeito colateral.
+   Funções puras: mesma entrada, mesma saída, sem DOM.
    ============================================================ */
 (function (TERM) {
   "use strict";
 
   TERM.utils = {
 
-    /* Remove acentos e cedilha, mantendo a letra base.
-       "AVIÃO" -> "AVIAO"   |   "PREÇO" -> "PRECO"
-
-       NFD separa a letra do sinal diacrítico; o intervalo
-       \u0300-\u036f cobre esses sinais combinantes. */
+    /* "AVIÃO" -> "AVIAO". NFD separa a letra do diacrítico; o
+       intervalo \u0300-\u036f cobre os sinais combinantes. */
     normalizar: function (texto) {
       return texto
         .normalize("NFD")
@@ -22,8 +16,7 @@
         .toUpperCase();
     },
 
-    /* Embaralhamento de Fisher-Yates sobre uma cópia da lista.
-       Não altera o array recebido. */
+    /* Fisher-Yates sobre uma cópia; não altera o original. */
     embaralhar: function (lista) {
       var copia = lista.slice();
       for (var i = copia.length - 1; i > 0; i--) {
@@ -35,8 +28,7 @@
       return copia;
     },
 
-    /* Duração em mm:ss. Os minutos crescem além de 59 em vez
-       de estourar para horas. */
+    /* mm:ss, com os minutos passando de 59 em vez de virar hora. */
     formatarTempo: function (ms) {
       if (ms === null || ms === undefined) return "--:--";
       var total = Math.max(0, Math.floor(ms / 1000));
@@ -45,8 +37,7 @@
       return minutos + ":" + segundos;
     },
 
-    /* Sanitiza o nome informado no login: remove espaços das
-       pontas, colapsa espaços internos e aplica o limite. */
+    /* Apara as pontas, colapsa espaços internos, corta no limite. */
     limparNome: function (texto, limite) {
       var limpo = String(texto || "").trim().replace(/\s+/g, " ");
       return limpo.slice(0, limite);

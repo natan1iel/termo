@@ -1,12 +1,7 @@
 /* ============================================================
    core/config.js
-   Namespace raiz e parâmetros do jogo.
-
-   Este é o primeiro arquivo carregado: cria o objeto global
-   TERM, do qual todos os demais módulos dependem.
-
-   Textos ficam aqui, e não espalhados pelo código, para que
-   ajuste de redação ou tradução aconteça em um lugar só.
+   Primeiro arquivo carregado: cria o objeto global TERM.
+   Parâmetros e textos ficam aqui, num lugar só.
    ============================================================ */
 window.TERM = window.TERM || {};
 
@@ -28,23 +23,15 @@ window.TERM = window.TERM || {};
     ATRASO_RELATORIO_VITORIA: 900,
     ATRASO_RELATORIO_DERROTA: 700,
 
-    /* Passo do cronômetro do relatório. Menor que um segundo
-       para que a virada do mostrador não atrase até um segundo
-       inteiro em relação ao tempo real. */
+    /* Abaixo de um segundo para o mostrador não atrasar. */
     INTERVALO_CRONOMETRO: 250,
 
-    /* ---------- Solucionador ----------
-
-       As três aberturas são jogadas sempre, nesta ordem, sem
-       olhar o resultado das anteriores. Valem pelo conjunto, e
-       não uma a uma: juntas testam 15 letras distintas sem
-       nenhuma sobreposição — A D E F I L M N O P R S T U Z.
-       Da quarta em diante a escolha passa a ser por entropia.  */
+    /* Aberturas fixas, sempre nesta ordem. Valem pelo conjunto:
+       cobrem 15 letras sem sobreposição. */
     SOLVER_ABERTURAS: ["TRENS", "PODAM", "FUZIL"],
 
-    /* Folga sobre a duração da revelação antes do próximo
-       chute. Sem ela o passo do solver disputaria o mesmo
-       instante com o desenho que submeterTentativa agenda. */
+    /* Folga sobre a revelação, senão o passo do solver disputa
+       o instante com o desenho que submeterTentativa agenda. */
     SOLVER_PAUSA: 150,
 
     /* Estados possíveis de uma letra avaliada */

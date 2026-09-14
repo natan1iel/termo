@@ -1,10 +1,7 @@
 /* ============================================================
    core/engine.js
-   Regras do jogo. Nenhuma referência ao DOM.
-
-   É a camada que decide o que é verdade; a camada de interface
-   apenas desenha o que este módulo devolve. Isso permite testar
-   as regras sem navegador e trocar a interface sem tocar aqui.
+   Regras do jogo. Decide o que é verdade; a ui só desenha o
+   que sai daqui. Sem DOM.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -13,20 +10,12 @@
 
   TERM.engine = {
 
-    /* ---------- Avaliação de uma tentativa ----------
+    /* Duas passagens: a primeira marca os acertos de posição e
+       estoca as letras restantes da solução; a segunda gasta
+       esse estoque marcando presença. Em uma passagem só, letra
+       repetida em excesso acenderia marcação demais.
 
-       Duas passagens, e a ordem importa.
-
-       Passagem 1 marca apenas os acertos de posição e devolve
-       ao estoque as letras da solução que não coincidiram.
-       Passagem 2 percorre o que sobrou e só marca presença
-       enquanto houver estoque daquela letra.
-
-       Sem essa separação, uma tentativa com a letra repetida
-       mais vezes do que a solução acende marcações demais —
-       é o defeito clássico de clone de Wordle.
-
-       Ambos os argumentos devem vir normalizados.            */
+       Argumentos normalizados. */
     avaliar: function (tentativa, solucao) {
       var total = cfg.COLUNAS;
       var resultado = new Array(total).fill(cfg.ESTADO.AUSENTE);
@@ -61,19 +50,15 @@
       });
     },
 
-    /* Estado que deve prevalecer no teclado entre dois
-       conhecidos sobre a mesma letra. */
+    /* Qual dos dois estados prevalece no teclado. */
     melhorEstado: function (atual, novo) {
       if (!atual) return novo;
       return cfg.PRIORIDADE[novo] > cfg.PRIORIDADE[atual] ? novo : atual;
     },
 
-    /* ---------- Sorteio ----------
-
-       Baralho embaralhado em vez de sorteio independente: o
-       jogador vê todas as palavras antes de qualquer repetição.
-       Com Math.random() puro, repetições apareceriam já nas
-       primeiras dezenas de rodadas.                          */
+    /* Baralho em vez de sorteio independente: todas as palavras
+       saem antes da primeira repetição. Com Math.random() puro,
+       repetiria já nas primeiras dezenas de rodadas. */
     baralho: {
       restantes: [],
       rodada: 0,
@@ -84,8 +69,7 @@
           this.restantes = TERM.utils.embaralhar(TERM.dictionary.solucoes);
           if (this.rodada > 0) this.ciclo++;
 
-          /* Impede que a última palavra do ciclo anterior seja
-             a primeira do novo. */
+          /* Evita emendar a última palavra do ciclo na primeira do novo. */
           var topo = this.restantes.length - 1;
           if (this.restantes[topo] === ultimaPalavra && topo > 0) {
             var troca = this.restantes[topo];

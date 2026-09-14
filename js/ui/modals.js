@@ -1,11 +1,8 @@
 /* ============================================================
    ui/modals.js
-   As três janelas sobrepostas: login, relatório e confirmação
-   do solucionador.
-
-   Concentra também a regra de qual delas está aberta, usada
-   pelo tratamento de teclado para não deixar tecla vazar para
-   o jogo por trás.
+   As três janelas sobrepostas: login, relatório e confirmação.
+   Concentra também qual delas está aberta, que o tratamento de
+   teclado usa para não deixar tecla vazar para o jogo atrás.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -87,9 +84,8 @@
       var subtitulo = document.querySelector("#rel-tempo-sub");
 
       if (TERM.solver.resolveuUltima) {
-        /* Partida da máquina: as estatísticas não se moveram e
-           não há tempo medido. Dizer "acertou" aqui leria como
-           defeito, não como exclusão deliberada. */
+        /* Partida da máquina: estatísticas paradas e sem tempo.
+           Dizer "acertou" aqui leria como defeito. */
         veredito.className = "veredito";
         veredito.innerHTML = desfecho === "X"
           ? cfg.TEXTOS.relatorioSolverFalhou(partida.solucao)
@@ -115,10 +111,8 @@
 
       this.abrir(this.relatorio, "#btn-sortear");
 
-      /* Com a partida em andamento o relatório é uma consulta:
-         o tempo precisa continuar correndo à vista, e não
-         congelar no instante da abertura. Encerrada a partida,
-         a duração é final e não há o que acompanhar. */
+      /* Em andamento, o relatório é consulta e o tempo precisa
+         seguir correndo. Encerrada, a duração é final. */
       if (TERM.percurso.emAndamento()) this.iniciarCronometro();
     },
 
@@ -135,9 +129,7 @@
       this.pararCronometro();
       var self = this;
       this.cronometro = setInterval(function () {
-        /* Encerrar a partida com o relatório aberto congela o
-           valor: sem esta parada, o intervalo seguiria vivo
-           reescrevendo o mesmo número. */
+        /* Encerrar com o relatório aberto congela o valor. */
         if (!TERM.percurso.emAndamento()) return self.pararCronometro();
         self.atualizarTempo();
       }, cfg.INTERVALO_CRONOMETRO);

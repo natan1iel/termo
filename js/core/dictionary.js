@@ -1,21 +1,13 @@
 /* ============================================================
    core/dictionary.js
-   Duas listas, com papéis diferentes.
+   Duas listas: `solucoes` é o que o baralho sorteia, `validas`
+   é o que o jogo aceita digitado. Uma lista só não serve aos
+   dois papéis — pequena demais recusa português legítimo,
+   grande demais sorteia palavra que ninguém conhece.
 
-   `solucoes` é o que o baralho sorteia: palavras curadas, que
-   um jogador reconhece. `validas` é o que o jogo aceita quando
-   alguém digita — bem maior e permissiva, porque recusar uma
-   palavra que existe faz o jogo parecer quebrado.
-
-   Uma lista só não atende às duas exigências: encolhê-la recusa
-   português legítimo, ampliá-la sorteia palavra que ninguém
-   conhece. Toda solução é também um chute válido.
-
-   Mantidas COM acento e em maiúsculas: a comparação usa a forma
-   normalizada, mas a revelação exibe o acento correto.
-
-   PODAM e FUZIL constam apenas em `validas`. São aberturas do
-   solucionador, não respostas.
+   Toda solução é também um chute válido; o contrário não.
+   Acentuadas e em maiúsculas: compara-se a forma normalizada,
+   mas a revelação exibe o acento.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -1236,8 +1228,7 @@
       "ZUNIR", "ZUNIS", "ZUNIU", "ZUPAR", "ZURPA", "ZURRA", "ZURRE", "ZURRO", "ZURUÓ"
     ],
 
-    /* Conjunto normalizado das aceitas, montado uma vez no
-       carregamento. É o que `existe` consulta. */
+    /* Conjunto normalizado das aceitas, montado no carregamento. */
     aceitas: null,
 
     init: function () {
