@@ -56,14 +56,14 @@
       TERM.modals.fecharRelatorio();
 
       var solucao = TERM.engine.baralho.sortear(TERM.partida.solucao);
-      TERM.partida.iniciar(solucao, TERM.engine.baralho.rodada);
+      TERM.partida.iniciar(solucao, TERM.estatisticas.dados.jogos + 1);
       TERM.percurso.iniciar(TERM.jogador.nome, solucao);
 
       TERM.board.montar();
       TERM.keyboard.montar();
       TERM.log.limpar();
 
-      if (TERM.engine.baralho.rodada === 1) TERM.log.abertura();
+      if (TERM.partida.rodada === 1) TERM.log.abertura();
       TERM.log.sorteio();
 
       this.atualizarBarra();
