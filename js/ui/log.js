@@ -1,7 +1,3 @@
-/* ============================================================
-   ui/log.js
-   Painel de registro: cada evento vira uma linha de terminal.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
@@ -19,7 +15,6 @@
       this.elemento.innerHTML = "";
     },
 
-    /* rotulo aparece entre colchetes; tom define a cor da linha. */
     escrever: function (rotulo, texto, tom) {
       var p = document.createElement("p");
       if (tom) p.className = tom;
@@ -30,7 +25,6 @@
       this.elemento.scrollTop = this.elemento.scrollHeight;
     },
 
-    /* Linha recuada, sem rótulo, usada nos complementos. */
     escreverRecuado: function (texto) {
       var p = document.createElement("p");
       p.innerHTML = "<span class='rotulo'>    " + texto + "</span>";
@@ -38,7 +32,6 @@
       this.elemento.scrollTop = this.elemento.scrollHeight;
     },
 
-    /* O código de cores fica na legenda fixa, que não rola junto. */
     abertura: function () {
       this.escrever("boot", "<b>" + cfg.TEXTOS.boot + "</b>");
       cfg.TEXTOS.ajuda.forEach(function (linha) {
@@ -51,7 +44,6 @@
       this.escrever("pronto", cfg.TEXTOS.pronto, "destaque");
     },
 
-    /* Cada par letra+sinal na cor do seu estado. */
     tentativa: function (numero, palavra, resultado) {
       var conteudo = "";
       for (var i = 0; i < resultado.length; i++) {

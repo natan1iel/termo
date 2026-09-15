@@ -1,9 +1,3 @@
-/* ============================================================
-   layout.css
-   Estrutura da página: barra, colunas, palco e painel.
-   Só posicionamento e dimensão; aparência fica em components.
-   ============================================================ */
-
 .aplicacao {
   width: 100%;
   max-width: 960px;
@@ -11,8 +5,6 @@
   flex-direction: column;
   gap: 18px;
 }
-
-/* ---------- barra superior ---------- */
 
 .barra {
   display: flex;
@@ -34,8 +26,6 @@
 }
 .barra-info strong { color: var(--fosforo); font-weight: 600; }
 
-/* ---------- colunas ---------- */
-
 .colunas {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -49,8 +39,6 @@
   gap: 22px;
   align-items: center;
 }
-
-/* ---------- painel de registro ---------- */
 
 .painel {
   border: 1px solid var(--borda);
@@ -66,11 +54,6 @@
   flex-direction: column;
   gap: 8px;
 }
-
-/* ---------- pontos de quebra ----------
-   840: as colunas empilham e o painel vai para baixo
-   560: o sufixo do comando some da barra
-   420: célula e tecla encolhem                          */
 
 @media (max-width: 840px) {
   .colunas { grid-template-columns: minmax(0, 1fr); }

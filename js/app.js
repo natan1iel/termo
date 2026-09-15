@@ -1,8 +1,3 @@
-/* ============================================================
-   app.js
-   Orquestração. Único módulo que conhece todos os outros:
-   recebe a entrada, consulta o core, manda a ui desenhar.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
@@ -10,8 +5,6 @@
   var utils = TERM.utils;
 
   TERM.app = {
-
-    /* ---------- Arranque ---------- */
 
     iniciar: function () {
       TERM.dictionary.init();
@@ -29,16 +22,10 @@
       TERM.modals.abrirLogin();
     },
 
-    /* ---------- Ciclo de partida ---------- */
-
     entrarNoJogo: function () {
-      /* Antes de trocar de registro: a partida largada pertence
-         ao jogador que está saindo. */
       this.encerrarAbandono();
 
       var nome = TERM.jogador.definir(TERM.modals.nomeInformado());
-      /* Antes de novaPartida: aplicarResetPendente age sobre o
-         registro corrente, e ele precisa já ser o do novo nome. */
       TERM.estatisticas.entrar(nome);
       this.definirTexto("#info-jogador", nome);
       TERM.modals.fecharLogin();
@@ -46,8 +33,6 @@
     },
 
     novaPartida: function () {
-      /* Sortear durante a execução deixaria o solucionador
-         jogando a palavra antiga contra outra solução. */
       if (TERM.solver.emExecucao) return;
 
       TERM.solver.resolveuUltima = false;
@@ -70,9 +55,6 @@
       this.desenharEntrada();
     },
 
-    /* Largar uma partida no meio conta derrota: sem isso, com o
-       ranking por média de tentativas, desistir de uma partida
-       ruim seria a jogada ótima. */
     encerrarAbandono: function () {
       if (!TERM.percurso.emAndamento()) return;
       if (TERM.partida.encerrada || TERM.partida.linha === 0) return;
@@ -80,12 +62,7 @@
       TERM.estatisticas.registrarAbandono();
     },
 
-    /* ---------- Entrada ---------- */
-
     tratarTecla: function (tecla) {
-      /* Enquanto a máquina joga, a entrada humana corromperia a
-         linha que ela monta — e um ENTER submeteria um chute que
-         o histórico do solucionador nunca veria. */
       if (TERM.solver.emExecucao) return;
       if (TERM.modals.aberta()) return;
 
@@ -117,9 +94,6 @@
       }
     },
 
-    /* Clique numa célula leva o cursor até ela. Só vale na
-       linha em edição: as anteriores já foram avaliadas e as
-       seguintes ainda não existem para o jogador. */
     tratarCliqueCelula: function (linha, coluna) {
       if (TERM.solver.emExecucao) return;
       if (TERM.modals.aberta() || TERM.partida.encerrada) return;
@@ -136,13 +110,8 @@
       this.atualizarBarra();
     },
 
-    /* ---------- Submissão ---------- */
-
     submeterTentativa: function () {
       var partida = TERM.partida;
-      /* Invariante: partida encerrada não recebe tentativa. Sem
-         isto, uma chamada tardia revelaria a linha de novo e
-         abriria o relatório duas vezes. */
       if (partida.encerrada) return;
 
       if (!partida.completa()) {
@@ -182,8 +151,6 @@
       TERM.log.erro(mensagem);
     },
 
-    /* ---------- Encerramento ---------- */
-
     encerrarComVitoria: function () {
       var partida = TERM.partida;
       var tentativas = partida.linha + 1;
@@ -220,8 +187,6 @@
       }, espera);
     },
 
-    /* ---------- Barra superior ---------- */
-
     atualizarBarra: function () {
       this.definirTexto("#info-rodada", TERM.partida.rodada || "—");
       this.definirTexto("#info-tentativa", TERM.partida.linha + 1);
@@ -231,8 +196,6 @@
       var el = document.querySelector(seletor);
       if (el) el.textContent = valor;
     },
-
-    /* ---------- Eventos ---------- */
 
     ligarEventos: function () {
       var self = this;
@@ -282,25 +245,17 @@
       document.addEventListener("keydown", this.tratarTeclaFisica.bind(this));
     },
 
-    /* Com janela aberta, o jogo não recebe letras. Sem essa
-       barreira, digitar por trás do login encheria a grade
-       às cegas. */
     tratarTeclaFisica: function (evento) {
       if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
 
-      /* Com um botão focado, o preventDefault do Enter suprimiria
-         o clique nativo e a tecla viraria uma tentativa. */
       if (evento.target && evento.target.tagName === "BUTTON") return;
 
       var aberta = TERM.modals.aberta();
       if (aberta) {
         if (evento.key === "Escape") {
-          /* O login não fecha com Esc: identificar-se é obrigatório. */
           if (aberta === TERM.modals.resolver) TERM.modals.fecharResolver();
           else if (aberta === TERM.modals.relatorio) TERM.modals.fecharRelatorio();
           else if (aberta === TERM.modals.ranking) TERM.modals.fecharRanking();
-          /* No arranque o login não fecha: identificar-se é
-             obrigatório. Reaberto para trocar de jogador, fecha. */
           else if (aberta === TERM.modals.login && TERM.partida.rodada > 0) {
             TERM.modals.fecharLogin();
           }
@@ -310,15 +265,10 @@
           evento.preventDefault();
           if (aberta === TERM.modals.login) return this.entrarNoJogo();
           if (aberta === TERM.modals.relatorio) return this.novaPartida();
-          /* Na confirmação do solucionador, Enter não confirma:
-             é a mesma tecla de enviar tentativa, e um Enter
-             repetido não pode disparar ação destrutiva. */
         }
         return;
       }
 
-      /* Durante a execução do solucionador só Esc responde, para
-         que exista uma saída do bloqueio. */
       if (TERM.solver.emExecucao) {
         if (evento.key === "Escape") {
           TERM.solver.abortar(cfg.TEXTOS.solverCancelado);
@@ -352,8 +302,6 @@
       TERM.modals.abrirRanking();
     },
 
-    /* Reabre o login, que já faz tudo: define, atualiza a barra,
-       fecha e começa partida nova. */
     trocarJogador: function () {
       if (TERM.solver.emExecucao) return;
       TERM.modals.abrirLogin(TERM.jogador.nome);

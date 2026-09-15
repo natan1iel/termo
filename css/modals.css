@@ -1,9 +1,3 @@
-/* ============================================================
-   modals.css
-   Janelas sobrepostas: login, relatório e confirmação.
-   Compartilham o mesmo cartão; mudam largura e conteúdo.
-   ============================================================ */
-
 .sobreposicao {
   position: fixed;
   inset: 0;
@@ -56,8 +50,6 @@
 .fechar:hover { border-color: var(--fosforo-medio); color: var(--fosforo); }
 .fechar:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
 
-/* ---------- textos ---------- */
-
 .veredito {
   font-size: 13px;
   line-height: 1.7;
@@ -93,8 +85,6 @@
 }
 .alerta b { font-weight: 600; }
 
-/* ---------- estatísticas ---------- */
-
 .estatisticas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -123,8 +113,6 @@
   color: var(--fosforo-medio);
 }
 
-/* ---------- tempo ---------- */
-
 .tempo {
   border: 1px solid var(--borda);
   padding: 16px 12px;
@@ -144,8 +132,6 @@
   letter-spacing: 0.06em;
   color: var(--fosforo-medio);
 }
-
-/* ---------- campo de texto ---------- */
 
 .campo {
   display: flex;
@@ -176,19 +162,11 @@
 }
 .campo input::placeholder { color: var(--fosforo-fraco); }
 
-/* ---------- ações ---------- */
-
 .cartao-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 .cartao-acoes .botao { flex: 1; min-width: 130px; text-align: center; }
 
-/* ---------- ranking ---------- */
-
-/* Rolagem horizontal própria: a tabela é o único conteúdo do
-   projeto que não cabe em tela estreita. */
 .rank-rolagem { overflow-x: auto; margin-bottom: 18px; }
 
-/* Grade com traço em toda célula: lê-se como tabela, que é o
-   formato em que se compara linha a linha. */
 .rank-tabela {
   display: grid;
   grid-template-columns: 38px minmax(110px, 1fr) repeat(5, auto);
@@ -214,10 +192,9 @@
   color: var(--fosforo);
   font-size: 10px;
   letter-spacing: 0.06em;
-  cursor: help;          /* cada título explica a coluna ao passar o mouse */
+  cursor: help;
 }
 
-/* O nome é o que se procura primeiro: à esquerda e maior. */
 .rank-tabela .nome {
   text-align: left;
   font-size: 16px;
@@ -227,12 +204,10 @@
 
 .rank-tabela .num { font-weight: 600; }
 
-
 .rank-tabela .eu {
   background: var(--fosforo-fraco);
   color: var(--fosforo-claro);
 }
-
 
 .rank-nota {
   font-size: 11px;

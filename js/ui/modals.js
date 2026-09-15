@@ -1,16 +1,8 @@
-/* ============================================================
-   ui/modals.js
-   As três janelas sobrepostas: login, relatório e confirmação.
-   Concentra também qual delas está aberta, que o tratamento de
-   teclado usa para não deixar tecla vazar para o jogo atrás.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
   var cfg = TERM.config;
   var utils = TERM.utils;
-
-
 
   function criar(tag, classe, texto) {
     var el = document.createElement(tag);
@@ -52,7 +44,6 @@
       celula(grade, String(l.jogos), meu);
       celula(grade, String(l.vitorias), meu);
       celula(grade, Math.round(100 * l.taxa) + "%", meu);
-      /* sem vitória não há média de tentativas a exibir */
       celula(grade, l.media === null ? "—" : l.media.toFixed(2), meu);
       celula(grade, tempoDe(l.medianaS), meu);
     });
@@ -77,8 +68,6 @@
     },
 
     abrir: function (elemento, focar) {
-      /* Uma janela de cada vez: aberta() devolve a primeira do
-         DOM, não a de cima, então duas abertas confundem o Esc. */
       var atual = this.aberta();
       if (atual && atual !== elemento) {
         if (atual === this.relatorio) this.pararCronometro();
@@ -96,19 +85,14 @@
       elemento.classList.remove("aberto");
     },
 
-    /* Devolve a janela aberta, ou null. */
     aberta: function () {
       return document.querySelector(".sobreposicao.aberto");
     },
-
-    /* ---------- Login ---------- */
 
     abrirLogin: function (nomeAtual) {
       var campo = document.querySelector("#campo-nome");
       if (campo) campo.value = nomeAtual || "";
       this.abrir(this.login, "#campo-nome");
-      /* Selecionado para o próximo jogador digitar por cima, e
-         não emendar no nome anterior até estourar o limite. */
       if (campo) campo.select();
     },
 
@@ -120,8 +104,6 @@
       return document.querySelector("#campo-nome").value;
     },
 
-    /* ---------- Confirmação do solucionador ---------- */
-
     abrirResolver: function () {
       this.abrir(this.resolver, "#btn-cancelar");
     },
@@ -129,8 +111,6 @@
     fecharResolver: function () {
       this.fechar(this.resolver);
     },
-
-    /* ---------- Ranking ---------- */
 
     abrirRanking: function () {
       this.desenharRanking(TERM.estatisticas.ranking());
@@ -141,14 +121,11 @@
       this.fechar(this.ranking);
     },
 
-    /* Recebe a lista já ordenada e cortada; não decide nada. */
     desenharRanking: function (lista) {
       var corpo = document.querySelector("#rank-corpo");
       var eu = TERM.estatisticas.chave;
       corpo.innerHTML = "";
 
-      /* innerHTML porque o texto marca termos com <b>; vem de
-         config, sem nada digitado pelo jogador. */
       if (!lista.length) {
         corpo.appendChild(criar("p", "rank-nota", cfg.TEXTOS.rankingVazio));
         return;
@@ -163,10 +140,6 @@
       }
     },
 
-    /* ---------- Relatório ----------
-
-       desfecho: número da tentativa em que venceu, "X" para
-       derrota, ou null para consulta com partida em andamento. */
     abrirRelatorio: function (desfecho) {
       var dados = TERM.estatisticas.dados;
       var partida = TERM.partida;
@@ -183,8 +156,6 @@
       var subtitulo = document.querySelector("#rel-tempo-sub");
 
       if (TERM.solver.resolveuUltima) {
-        /* Partida da máquina: estatísticas paradas e sem tempo.
-           Dizer "acertou" aqui leria como defeito. */
         veredito.className = "veredito";
         veredito.innerHTML = desfecho === "X"
           ? cfg.TEXTOS.relatorioSolverFalhou(partida.solucao)
@@ -210,8 +181,6 @@
 
       this.abrir(this.relatorio, "#btn-sortear");
 
-      /* Em andamento, o relatório é consulta e o tempo precisa
-         seguir correndo. Encerrada, a duração é final. */
       if (TERM.percurso.emAndamento()) this.iniciarCronometro();
     },
 
@@ -228,7 +197,6 @@
       this.pararCronometro();
       var self = this;
       this.cronometro = setInterval(function () {
-        /* Encerrar com o relatório aberto congela o valor. */
         if (!TERM.percurso.emAndamento()) return self.pararCronometro();
         self.atualizarTempo();
       }, cfg.INTERVALO_CRONOMETRO);

@@ -1,7 +1,3 @@
-/* ============================================================
-   ui/keyboard.js
-   Teclado virtual e mapa de estados das letras.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
@@ -44,7 +40,6 @@
       });
     },
 
-    /* O estado de uma letra nunca regride: correta > presente > ausente. */
     atualizarLetra: function (letra, estado) {
       var atual = TERM.partida.estadosTeclado[letra];
       var melhor = TERM.engine.melhorEstado(atual, estado);

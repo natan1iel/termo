@@ -1,14 +1,7 @@
-/* ============================================================
-   core/state.js
-   Partida corrente, percurso e estatísticas. Sem DOM — a
-   interface lê daqui e nunca guarda estado próprio.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
   var cfg = TERM.config;
-
-  /* ---------- Jogador ---------- */
 
   TERM.jogador = {
     nome: cfg.NOME_PADRAO,
@@ -20,18 +13,16 @@
     }
   };
 
-  /* ---------- Partida corrente ---------- */
-
   TERM.partida = {
-    solucao: "",          // com acento, exibida ao revelar
+    solucao: "",
     solucaoNormalizada: "",
     linha: 0,
-    letras: [],           // uma posição por coluna, "" onde não há letra
-    cursor: 0,            // coluna em edição
+    letras: [],
+    cursor: 0,
     encerrada: false,
-    contabilizada: false, // impede contagem dupla do mesmo resultado
+    contabilizada: false,
     rodada: 0,
-    resultados: [],       // um array de estados por tentativa
+    resultados: [],
     estadosTeclado: {},
 
     iniciar: function (solucao, rodada) {
@@ -46,17 +37,11 @@
       this.estadosTeclado = {};
     },
 
-    /* ---------- Linha em edição ----------
-       Vetor de posições, não um texto que só cresce no fim: é
-       o que permite cravar uma letra numa coluna conhecida e
-       preencher o resto depois. */
-
     limparLinha: function () {
       this.letras = new Array(cfg.COLUNAS).fill("");
       this.cursor = 0;
     },
 
-    /* Só faz sentido com a linha completa; confira antes. */
     texto: function () {
       return this.letras.join("");
     },
@@ -71,7 +56,6 @@
       return this.lacunas() === 0;
     },
 
-    /* Primeira posição livre a partir de uma coluna, ou -1. */
     proximaLacuna: function (partindoDe) {
       for (var c = partindoDe; c < cfg.COLUNAS; c++) {
         if (this.letras[c] === "") return c;
@@ -79,8 +63,6 @@
       return -1;
     },
 
-    /* Salta para a próxima lacuna em vez de andar uma casa,
-       para não passar por cima de letras já cravadas. */
     digitar: function (letra) {
       this.letras[this.cursor] = letra;
       var proxima = this.proximaLacuna(this.cursor + 1);
@@ -88,8 +70,6 @@
       return true;
     },
 
-    /* Apaga sob o cursor; se já estava vazio, recua e apaga a
-       anterior — igual a um backspace comum. */
     apagar: function () {
       if (this.letras[this.cursor] !== "") {
         this.letras[this.cursor] = "";
@@ -101,7 +81,6 @@
       return true;
     },
 
-    /* Navegação. Ambas param nas bordas, sem dar a volta. */
     mover: function (passo) {
       return this.irPara(this.cursor + passo);
     },
@@ -125,10 +104,6 @@
       this.limparLinha();
     }
   };
-
-  /* ---------- Percurso ----------
-     Cada tentativa com o retorno que produziu e o tempo até
-     ali — é o que alimenta a análise de dificuldade. */
 
   TERM.percurso = {
     atual: null,
@@ -155,12 +130,10 @@
       });
     },
 
-    /* A interface consulta para saber se o tempo ainda muda. */
     emAndamento: function () {
       return !!(this.atual && !this.atual.fim);
     },
 
-    /* Encerrada usa o valor final; em andamento, o tempo até agora. */
     duracao: function () {
       if (!this.atual) return null;
       return this.atual.fim
@@ -177,17 +150,11 @@
       return this.atual.duracaoMs;
     },
 
-    /* Partida do solucionador não entra no percurso humano. */
     descartar: function () {
       this.atual = null;
     }
   };
 
-  /* ---------- Estatísticas ---------- */
-
-  /* O acesso à própria propriedade localStorage pode lançar —
-     Safari sob file://, dados de site bloqueados —, então nem
-     obter a referência é seguro fora de um try. */
   function armazenamento() {
     try {
       return window.localStorage || null;
@@ -203,11 +170,11 @@
       vitorias: 0,
       derrotas: 0,
       abandonos: 0,
-      sequencia: 0,            // vitórias seguidas na série corrente
+      sequencia: 0,
       recorde: 0,
       zerarNaProxima: false,
-      tentativas: new Array(cfg.LINHAS).fill(0),  // vitórias por nº de chutes
-      duracoes: [],            // das vitórias, em segundos
+      tentativas: new Array(cfg.LINHAS).fill(0),
+      duracoes: [],
       melhorTempoS: null,
       ultimoJogo: null
     };
@@ -218,10 +185,6 @@
     return isFinite(n) && n > 0 ? n : 0;
   }
 
-  /* Registro corrompido faria registrar() lançar depois de a
-     partida já estar encerrada — e como o dado mora no
-     armazenamento, recarregar não recuperaria. Toda leitura
-     passa por aqui. */
   function normalizarRegistro(bruto, nome) {
     var limpo = registroVazio(nome);
     if (!bruto || typeof bruto !== "object") return limpo;
@@ -250,8 +213,6 @@
     return limpo;
   }
 
-  /* O prefixo evita que um jogador chamado __proto__ escreva no
-     protótipo do mapa em vez de criar uma entrada. */
   function chaveDe(nome) {
     return "j:" + TERM.utils.normalizar(nome);
   }
@@ -266,18 +227,17 @@
   }
 
   TERM.estatisticas = {
-    dados: null,        // aponta para o registro do jogador corrente
+    dados: null,
     jogadores: {},
     chave: null,
 
     init: function () {
       this.jogadores = this.carregar();
-      this.dados = registroVazio();   // nunca null: há leitores antes do login
+      this.dados = registroVazio();
       this.chave = null;
       return this;
     },
 
-    /* Únicos dois pontos que tocam armazenamento. */
     carregar: function () {
       var ls = armazenamento();
       if (!ls) return {};
@@ -302,9 +262,6 @@
       return limpos;
     },
 
-    /* Relê e encaixa só o registro corrente: duas abas abertas
-       não podem apagar as linhas uma da outra. Falha de escrita
-       morre aqui — a partida não quebra por cota estourada. */
     salvar: function () {
       var ls = armazenamento();
       if (!ls || !this.chave) return;
@@ -317,16 +274,10 @@
         ls.setItem(cfg.ARMAZENAMENTO_CHAVE,
                    JSON.stringify({ versao: 1, jogadores: todos }));
       } catch (erro) {
-        /* sem espaço ou sem permissão: segue a partida sem persistir */
       }
     },
 
-    /* Precisa rodar antes de novaPartida, senão o reset pendente
-       de quem sai cai no registro de quem entra. */
     entrar: function (nome) {
-      /* Sobrepõe o disco ao que já está em memória, em vez de
-         substituir: sem armazenamento, carregar() devolve vazio
-         e trocar de jogador apagaria todos os outros. */
       var doDisco = this.carregar();
       for (var k in doDisco) {
         if (Object.prototype.hasOwnProperty.call(doDisco, k)) {
@@ -341,7 +292,7 @@
           ? this.jogadores[this.chave]
           : registroVazio(nome);
 
-      registro.nome = nome;           // a grafia mais recente vence
+      registro.nome = nome;
       this.dados = registro;
       this.jogadores[this.chave] = registro;
       return registro;
@@ -360,13 +311,9 @@
         d.sequencia++;
         if (d.sequencia > d.recorde) d.recorde = d.sequencia;
 
-        /* A derrota chama sem o terceiro argumento; nunca indexar
-           com undefined. */
         var indice = Number(tentativas) - 1;
         if (indice >= 0 && indice < d.tentativas.length) d.tentativas[indice]++;
 
-        /* Piso de 1s: arredondar para zero descartaria a
-           duração de uma vitória relâmpago em silêncio. */
         var segundos = Math.max(1, Math.round(Number(duracaoMs) / 1000));
         if (isFinite(segundos)) {
           d.duracoes.push(segundos);
@@ -382,9 +329,6 @@
       this.salvar();
     },
 
-    /* Partida largada no meio conta derrota. Sem isso, com o
-       ranking ordenado por média de tentativas, desistir de uma
-       partida ruim seria a jogada ótima. */
     registrarAbandono: function () {
       if (TERM.partida.contabilizada) return false;
       this.dados.abandonos++;
@@ -399,16 +343,9 @@
       this.salvar();
     },
 
-    /* Lista pronta para desenhar; ordenar é regra e mora aqui.
-
-       Pontuação = tentativas gastas por partida, com derrota
-       custando uma a mais que o máximo, amortecida contra a
-       referência do grupo. A derrota pesar impede que quem
-       vence pouco mas vence bem lidere; o amortecimento segura
-       amostra pequena sem precisar excluir ninguém da lista. */
     ranking: function (peso) {
       var pesoRef = peso === undefined ? cfg.RANKING_PESO : peso;
-      var penalidade = cfg.LINHAS + 1;   // não achou em 6: gastou 7
+      var penalidade = cfg.LINHAS + 1;
       var linhas = [];
       var somaGrupo = 0, jogosGrupo = 0;
 
@@ -437,14 +374,11 @@
         });
       }
 
-      /* A referência é o desempenho do próprio grupo, então a
-         régua se calibra sozinha em vez de ser um número fixo. */
       var referencia = jogosGrupo ? somaGrupo / jogosGrupo : penalidade;
 
-      /* pontos não aparece na tabela — é só a régua de ordenação. */
       linhas.forEach(function (l) {
         l.pontos = (l.gasto + pesoRef * referencia) / (l.jogos + pesoRef);
-        delete l.gasto;                  // só serviu para chegar aos pontos
+        delete l.gasto;
       });
 
       return linhas.sort(function (a, b) {

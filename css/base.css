@@ -1,38 +1,24 @@
-/* ============================================================
-   base.css
-   Variáveis de tema, reset, tipografia e atmosfera CRT.
-
-   Todas as cores do projeto vivem aqui. Trocar o tema é
-   trocar este bloco, sem tocar em nenhuma regra individual.
-   ============================================================ */
-
 :root {
-  /* Fundos */
   --bg:              #07090a;
   --bg-painel:       #0b0f0d;
   --bg-sobreposicao: rgba(3, 5, 4, 0.9);
 
-  /* Verde fósforo, do mais forte ao quase invisível */
   --fosforo:        #4af07a;
   --fosforo-claro:  #63ff8f;
   --fosforo-medio:  #2f5c39;
   --fosforo-fraco:  #16281b;
   --fosforo-morto:  #1f3a26;
 
-  /* Âmbar: letra presente fora de posição */
   --ambar:      #e0c24a;
   --ambar-fraco:#6b5c22;
 
-  /* Erro e ação destrutiva */
   --perigo:      #e05a4a;
   --perigo-fundo:rgba(224, 90, 74, 0.12);
 
-  /* Traço */
   --borda: #1a3320;
 
   --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Medidas da grade e do teclado */
   --celula: 52px;
   --celula-gap: 7px;
   --tecla-altura: 44px;
@@ -56,8 +42,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- atmosfera CRT ---------- */
-
 .crt {
   position: fixed;
   inset: 0;
@@ -79,8 +63,6 @@ body {
     rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
 }
 
-/* ---------- marca ---------- */
-
 .marca {
   font-size: 17px;
   letter-spacing: 0.05em;
@@ -94,8 +76,6 @@ body {
   color: var(--fosforo-medio);
 }
 
-/* ---------- utilitários ---------- */
-
 .oculto {
   position: absolute;
   width: 1px;
@@ -107,8 +87,6 @@ body {
 .g { color: var(--fosforo); }
 .y { color: var(--ambar); }
 .n { color: var(--fosforo-morto); }
-
-/* ---------- animações ---------- */
 
 @keyframes piscar { 50% { opacity: 0; } }
 

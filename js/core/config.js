@@ -1,76 +1,54 @@
-/* ============================================================
-   core/config.js
-   Primeiro arquivo carregado: cria o objeto global TERM.
-   Parâmetros e textos ficam aqui, num lugar só.
-   ============================================================ */
 window.TERM = window.TERM || {};
 
 (function (TERM) {
   "use strict";
 
   TERM.config = {
-    /* Regras estruturais */
     LINHAS: 6,
     COLUNAS: 5,
 
-    /* Identificação */
     NOME_PADRAO: "convidado",
     TAMANHO_MAXIMO_NOME: 16,
 
-    /* Tempos de animação, em milissegundos */
     ATRASO_POR_LETRA: 180,
     ESPERA_APOS_REVELACAO: 200,
     ATRASO_RELATORIO_VITORIA: 900,
     ATRASO_RELATORIO_DERROTA: 700,
 
-    /* Abaixo de um segundo para o mostrador não atrasar. */
     INTERVALO_CRONOMETRO: 250,
 
-    /* Aberturas fixas, sempre nesta ordem. Valem pelo conjunto:
-       cobrem 15 letras sem sobreposição. */
     SOLVER_ABERTURAS: ["TRENS", "PODAM", "FUZIL"],
 
-    /* Folga sobre a revelação, senão o passo do solver disputa
-       o instante com o desenho que submeterTentativa agenda. */
     SOLVER_PAUSA: 150,
 
-    /* Ranking */
     ARMAZENAMENTO_CHAVE: "terminal.ranking",
 
-    /* Partidas de referência que todo jogador carrega antes das
-       próprias. É o que segura quem tem pouca amostra sem
-       precisar excluí-lo da lista. */
     RANKING_PESO: 5,
 
-    /* Estados possíveis de uma letra avaliada */
     ESTADO: {
       CORRETA: "correct",
       PRESENTE: "present",
       AUSENTE: "absent"
     },
 
-    /* Precedência usada no teclado: um estado nunca regride */
     PRIORIDADE: {
       absent: 1,
       present: 2,
       correct: 3
     },
 
-    /* Símbolo de cada estado nas linhas do registro */
     MARCA: {
       correct: "+",
       present: "~",
       absent: "-"
     },
 
-    /* Classe CSS de cor de cada estado nas linhas do registro */
     CLASSE_MARCA: {
       correct: "g",
       present: "y",
       absent: "n"
     },
 
-    /* Layout do teclado virtual */
     TECLADO: [
       ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
       ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
@@ -130,7 +108,6 @@ window.TERM = window.TERM || {};
       },
       relatorioSolverSub: "partida automática — fora do registro de desempenho",
 
-      /* Ranking */
       rankingVazio: "nenhuma partida registrada ainda",
       rankingClassificados: "CLASSIFICAÇÃO",
       rankingColunas: [

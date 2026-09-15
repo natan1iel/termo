@@ -1,7 +1,3 @@
-/* ============================================================
-   ui/board.js
-   Grade de tentativas. Só desenha; não decide nada.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
@@ -15,8 +11,6 @@
       this.elemento = document.querySelector(seletor);
       this.aoClicarCelula = aoClicarCelula;
 
-      /* No contêiner, que sobrevive às remontagens da grade.
-         Quem decide se o clique vale é o app. */
       var self = this;
       this.elemento.addEventListener("click", function (evento) {
         var celula = evento.target.closest(".celula");
@@ -50,7 +44,6 @@
       return this.elemento.children[indice];
     },
 
-    /* Recebe as posições e o cursor prontos; não infere nada. */
     desenharEntrada: function (indice, letras, cursor) {
       var linha = this.linhaDe(indice);
       if (!linha) return;
@@ -63,13 +56,11 @@
         celula.classList.toggle("cursor", c === cursor);
       }
 
-      /* Só a linha em edição aceita clique. */
       for (var l = 0; l < this.elemento.children.length; l++) {
         this.elemento.children[l].classList.toggle("ativa", l === indice);
       }
     },
 
-    /* Encerrada a partida, nenhuma linha aceita clique. */
     desativar: function () {
       for (var l = 0; l < this.elemento.children.length; l++) {
         this.elemento.children[l].classList.remove("ativa");
@@ -80,7 +71,6 @@
       }
     },
 
-    /* Escalonada; o callback deixa o teclado acompanhar o ritmo. */
     revelar: function (indice, resultado, solucao, aoRevelarLetra) {
       var linha = this.linhaDe(indice);
       resultado.forEach(function (estado, i) {
@@ -88,7 +78,6 @@
           var celula = linha.children[i];
           celula.classList.remove("preenchida", "cursor");
           celula.classList.add(estado, "revelar");
-          /* Posição certa mostra a forma acentuada da solução. */
           if (estado === cfg.ESTADO.CORRETA) {
             celula.textContent = solucao[i];
           }
@@ -100,7 +89,7 @@
     recusar: function (indice) {
       var linha = this.linhaDe(indice);
       linha.classList.remove("tremer");
-      void linha.offsetWidth;          // força o reinício da animação
+      void linha.offsetWidth;
       linha.classList.add("tremer");
     },
 
@@ -108,7 +97,6 @@
       this.linhaDe(indice).classList.add("vitoria");
     },
 
-    /* Tempo total da revelação de uma linha. */
     duracaoRevelacao: function () {
       return cfg.COLUNAS * cfg.ATRASO_POR_LETRA + cfg.ESPERA_APOS_REVELACAO;
     }

@@ -1,16 +1,8 @@
-/* ============================================================
-   core/dictionary.js
-   `solucoes` é o que o baralho sorteia; `validas` é o que o
-   jogo aceita digitado. Toda solução é chute válido; o
-   contrário não. Compara-se a forma normalizada, mas a
-   revelação exibe o acento.
-   ============================================================ */
 (function (TERM) {
   "use strict";
 
   TERM.dictionary = {
 
-    /* ---------- 1469 respostas possíveis ---------- */
     solucoes: [
       "ABANO", "ABONO", "ABRIL", "ABRIR", "ABUSO", "ÁCARO", "ACASO", "ACENO", "ACESA", "ACHAR",
       "ÁCIDO", "ACIMA", "AÇÕES", "ACOLÁ", "AÇUDE", "ADAGA", "ADEGA", "ADEUS", "ADIAR", "ADVIR",
@@ -161,7 +153,6 @@
       "VULTO", "XAMPU", "ZEBRA", "ZELAR", "ZERAR", "ZINCO", "ZÍPER", "ZONAS", "ZONZO"
     ],
 
-    /* ---------- 10589 palavras aceitas como tentativa ---------- */
     validas: [
       "ABABA", "ABACÁ", "ÁBACO", "ABADA", "ABADE", "ABADO", "ABAFA", "ABAFE", "ABAFO", "ABAJU",
       "ABALA", "ABALE", "ABALO", "ABAMA", "ABANA", "ABANE", "ABANO", "ABAPO", "ABARÁ", "ABARÉ",
@@ -1224,7 +1215,6 @@
       "ZUNIR", "ZUNIS", "ZUNIU", "ZUPAR", "ZURPA", "ZURRA", "ZURRE", "ZURRO", "ZURUÓ"
     ],
 
-    /* Conjunto normalizado das aceitas, montado no carregamento. */
     aceitas: null,
 
     init: function () {
