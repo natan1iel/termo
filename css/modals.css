@@ -191,8 +191,8 @@
    formato em que se compara linha a linha. */
 .rank-tabela {
   display: grid;
-  grid-template-columns: 38px minmax(110px, 1fr) repeat(6, auto);
-  min-width: 560px;
+  grid-template-columns: 38px minmax(110px, 1fr) repeat(5, auto);
+  min-width: 500px;
   border-top: 1px solid var(--fosforo-medio);
   border-left: 1px solid var(--fosforo-medio);
 }
@@ -227,8 +227,6 @@
 
 .rank-tabela .num { font-weight: 600; }
 
-/* É a coluna que ordena; merece ser achada de imediato. */
-.rank-tabela .pontos { color: var(--fosforo); font-weight: 600; }
 
 .rank-tabela .eu {
   background: var(--fosforo-fraco);

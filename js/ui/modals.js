@@ -49,7 +49,6 @@
       var meu = l.chave === eu ? " eu" : "";
       celula(grade, String(i + 1), "num" + meu);
       celula(grade, rotulo(l), "nome" + meu);
-      celula(grade, l.pontos.toFixed(2), "pontos" + meu);
       celula(grade, String(l.jogos), meu);
       celula(grade, String(l.vitorias), meu);
       celula(grade, Math.round(100 * l.taxa) + "%", meu);

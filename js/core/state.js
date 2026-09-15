@@ -441,6 +441,7 @@
          régua se calibra sozinha em vez de ser um número fixo. */
       var referencia = jogosGrupo ? somaGrupo / jogosGrupo : penalidade;
 
+      /* pontos não aparece na tabela — é só a régua de ordenação. */
       linhas.forEach(function (l) {
         l.pontos = (l.gasto + pesoRef * referencia) / (l.jogos + pesoRef);
         delete l.gasto;                  // só serviu para chegar aos pontos

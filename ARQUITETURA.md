@@ -264,15 +264,23 @@ que abre de uma vez, e **ninguém precisa ficar fora da lista** — quem começo
 agora se vê ranqueado desde a primeira rodada. A referência sai do próprio grupo,
 então a régua se calibra sozinha.
 
-A coluna **acerto em** exibe a média crua das vitórias, que é legível e concreta
-("acerta em 3,40 tentativas") — mas conta só as vitórias, e por isso não serve
-para ordenar. Ela informa; quem ordena é a de pontos.
+**A pontuação não aparece na tabela.** `ranking()` a calcula e ordena por ela,
+mas a coluna foi retirada por decisão de produto: é um número abstrato ao lado de
+colunas concretas. O custo está medido — em 5.000 grupos aleatórios, **0,49% dos
+pares** ficam numa ordem que as colunas visíveis não explicam, porque quem está
+abaixo ganha em taxa, tentativas e tempo ao mesmo tempo. São empates apertados
+que a pontuação tornaria óbvios; sem ela, parecem defeito. Se algum dia isso
+incomodar, devolver a coluna é uma linha em `config.TEXTOS.rankingColunas` e uma
+célula em `modals.js`.
 
-**Cada título de coluna carrega a própria explicação** em `title`, porque um
-rótulo de uma palavra não distingue "pontos" de "acerto em". Os textos ficam em
-`config.TEXTOS.rankingColunas`, junto do rótulo. E **seguidas** traz atual e
-recorde na mesma célula (`3/9`): em duas colunas pareciam repetição, já que só
-divergem depois de o jogador perder no meio de uma boa série.
+A coluna **tent./vitória** exibe a média crua das vitórias, legível e concreta
+("acerta em 3,40 tentativas") — mas conta só as vitórias, e por isso não serve
+para ordenar.
+
+**Cada título de coluna carrega a própria explicação** em `title`: um rótulo de
+uma palavra não basta. Os textos ficam em `config.TEXTOS.rankingColunas`, junto
+do rótulo, e precisam ser curtos — o `title` nativo não quebra linha nem aceita
+estilo, então um texto longo atravessa a tela.
 
 O tempo é exibido pela **mediana**, não pela média: o relógio conta tempo de
 parede, e uma partida deixada aberta destruiria a média do jogador para sempre.

@@ -136,7 +136,6 @@ window.TERM = window.TERM || {};
       rankingColunas: [
         { rotulo: "#",             ajuda: "posição" },
         { rotulo: "jogador",       ajuda: "quem jogou" },
-        { rotulo: "pontos",        ajuda: "média com derrota — menor é melhor" },
         { rotulo: "rodadas",       ajuda: "partidas jogadas" },
         { rotulo: "vitórias",      ajuda: "partidas vencidas" },
         { rotulo: "taxa",          ajuda: "percentual de vitórias" },
