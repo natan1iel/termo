@@ -1,13 +1,9 @@
 /* ============================================================
    core/dictionary.js
-   Duas listas: `solucoes` é o que o baralho sorteia, `validas`
-   é o que o jogo aceita digitado. Uma lista só não serve aos
-   dois papéis — pequena demais recusa português legítimo,
-   grande demais sorteia palavra que ninguém conhece.
-
-   Toda solução é também um chute válido; o contrário não.
-   Acentuadas e em maiúsculas: compara-se a forma normalizada,
-   mas a revelação exibe o acento.
+   `solucoes` é o que o baralho sorteia; `validas` é o que o
+   jogo aceita digitado. Toda solução é chute válido; o
+   contrário não. Compara-se a forma normalizada, mas a
+   revelação exibe o acento.
    ============================================================ */
 (function (TERM) {
   "use strict";
@@ -1238,14 +1234,6 @@
 
     existe: function (palavraNormalizada) {
       return this.aceitas.has(palavraNormalizada);
-    },
-
-    total: function () {
-      return this.solucoes.length;
-    },
-
-    totalValidas: function () {
-      return this.validas.length;
     }
   };
 

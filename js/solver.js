@@ -1,12 +1,9 @@
 /* ============================================================
    solver.js
-   Três aberturas fixas e, da quarta tentativa em diante,
-   escolha por entropia de Shannon: H = -SOMA p·log2(p) sobre a
-   distribuição dos retornos que o chute produziria. Maior H é
-   o chute que melhor separa o que restou.
-
-   A avaliação e o filtro vêm do core — engine.avaliar e
-   filtrarCandidatas, os mesmos que julgam o jogador.
+   Três aberturas fixas e, da quarta em diante, entropia de
+   Shannon: H = -SOMA p·log2(p) sobre os retornos que o chute
+   produziria. Maior H separa melhor o que restou. A avaliação
+   e o filtro vêm do core.
    ============================================================ */
 (function (TERM) {
   "use strict";

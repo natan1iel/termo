@@ -150,16 +150,15 @@
 
       /* innerHTML porque o texto marca termos com <b>; vem de
          config, sem nada digitado pelo jogador. */
-      if (!lista.linhas.length) {
+      if (!lista.length) {
         corpo.appendChild(criar("p", "rank-nota", cfg.TEXTOS.rankingVazio));
         return;
       }
 
       corpo.appendChild(criar("p", "secao-titulo", cfg.TEXTOS.rankingClassificados));
-      corpo.appendChild(tabela(lista.linhas, eu));
+      corpo.appendChild(tabela(lista, eu));
 
-      var temConvidado = lista.linhas
-        .some(function (l) { return ehConvidado(l.nome); });
+      var temConvidado = lista.some(function (l) { return ehConvidado(l.nome); });
       if (temConvidado) {
         corpo.appendChild(criar("p", "rank-nota", "* " + cfg.TEXTOS.rankingConvidado));
       }

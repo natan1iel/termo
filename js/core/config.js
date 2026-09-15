@@ -113,10 +113,6 @@ window.TERM = window.TERM || {};
       solverEscolha: function (palavra, bits) {
         return "entropia escolheu <b>" + palavra + "</b> (" + bits + " bits)";
       },
-      solverResolveu: function (tentativas) {
-        return "resolvido em " + tentativas +
-               (tentativas === 1 ? " tentativa" : " tentativas");
-      },
       solverInterrompido: function (motivo) {
         return "execução interrompida — " + motivo;
       },
@@ -147,9 +143,7 @@ window.TERM = window.TERM || {};
         { rotulo: "tent./vitória", ajuda: "tentativas por acerto" },
         { rotulo: "tempo",         ajuda: "mediana das vitórias" }
       ],
-      rankingConvidado: "partidas sem identificação",
-      abandonou: "partida abandonada conta como derrota",
-      trocarJogador: "trocar de jogador"
+      rankingConvidado: "partidas sem identificação"
     }
   };
 

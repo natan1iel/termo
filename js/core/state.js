@@ -399,29 +399,16 @@
       this.salvar();
     },
 
-    /* Quem perdeu e trocou de jogador deixa o reset pendente
-       parado no registro; a sequência exibida seria fantasma. */
-    sequenciaEfetiva: function (registro) {
-      return registro.zerarNaProxima ? 0 : registro.sequencia;
-    },
+    /* Lista pronta para desenhar; ordenar é regra e mora aqui.
 
-    /* Lista pronta para desenhar. Ordenar é regra, por isso mora
-       aqui e não na camada de interface.
-
-       A pontuação é a média de tentativas gastas por partida,
-       com a derrota custando uma a mais que o máximo, amortecida
-       contra a referência do grupo. Duas consequências:
-
-       - derrota pesa. Sem isso, quem vence pouco mas vence bem
-         lidera: 5 vitórias em 45 partidas davam o 1º lugar.
-       - amostra pequena não lidera por sorte. Cada jogador
-         carrega RANKING_PESO partidas valendo a referência, que
-         vão perdendo peso conforme ele joga. É gradual, e
-         dispensa excluir ninguém da lista por mínimo de jogos. */
+       Pontuação = tentativas gastas por partida, com derrota
+       custando uma a mais que o máximo, amortecida contra a
+       referência do grupo. A derrota pesar impede que quem
+       vence pouco mas vence bem lidere; o amortecimento segura
+       amostra pequena sem precisar excluir ninguém da lista. */
     ranking: function (peso) {
       var pesoRef = peso === undefined ? cfg.RANKING_PESO : peso;
       var penalidade = cfg.LINHAS + 1;   // não achou em 6: gastou 7
-      var self = this;
       var linhas = [];
       var somaGrupo = 0, jogosGrupo = 0;
 
@@ -443,15 +430,10 @@
           nome: r.nome,
           jogos: r.jogos,
           vitorias: r.vitorias,
-          derrotas: r.derrotas,
-          abandonos: r.abandonos,
           gasto: gasto,
           taxa: r.vitorias / r.jogos,
           media: r.vitorias ? somaVitorias / r.vitorias : null,
-          medianaS: mediana(r.duracoes),
-          melhorTempoS: r.melhorTempoS,
-          sequencia: self.sequenciaEfetiva(r),
-          recorde: r.recorde
+          medianaS: mediana(r.duracoes)
         });
       }
 
@@ -461,33 +443,12 @@
 
       linhas.forEach(function (l) {
         l.pontos = (l.gasto + pesoRef * referencia) / (l.jogos + pesoRef);
+        delete l.gasto;                  // só serviu para chegar aos pontos
       });
 
-      linhas.sort(function (a, b) {
+      return linhas.sort(function (a, b) {
         return a.pontos - b.pontos || b.taxa - a.taxa || b.jogos - a.jogos;
       });
-
-      return {
-        referencia: referencia,
-        penalidade: penalidade,
-        peso: pesoRef,
-        linhas: linhas
-      };
-    },
-
-    limpar: function () {
-      this.jogadores = {};
-      if (this.chave) {
-        this.dados = registroVazio(this.dados.nome);
-        this.jogadores[this.chave] = this.dados;
-      }
-      var ls = armazenamento();
-      if (!ls) return;
-      try {
-        ls.removeItem(cfg.ARMAZENAMENTO_CHAVE);
-      } catch (erro) {
-        /* nada a fazer: já foi limpo em memória */
-      }
     }
   };
 
