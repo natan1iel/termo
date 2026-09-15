@@ -69,6 +69,57 @@
 
 .celula.revelar { animation: virar 300ms ease-in-out; }
 
+/* ---------- controles da barra ---------- */
+
+.nome-jogador {
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: inherit;
+  background: none;
+  border: none;
+  border-bottom: 1px dotted var(--fosforo-medio);
+  color: var(--fosforo);
+  padding: 0;
+  cursor: pointer;
+}
+.nome-jogador:hover { border-bottom-color: var(--fosforo); }
+.nome-jogador:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+
+.icone-barra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--fosforo-medio);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.icone-barra:hover { color: var(--fosforo); }
+.icone-barra .icone { width: 18px; height: 18px; }
+.icone-barra:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+
+/* ---------- ícones ---------- */
+
+/* currentColor: o traço acompanha a cor de quem contém. */
+.icone {
+  width: 1.05em;
+  height: 1.05em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.18em;
+}
+
+.botao .icone { margin-right: 8px; }
+
+/* Preenchido em vez de contornado: sozinho e pequeno, o
+   contorno fica fraco demais para ser lido. */
+.icone.cheio { fill: currentColor; stroke: none; }
+
 /* ---------- teclado ---------- */
 
 .teclado {

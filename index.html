@@ -16,6 +16,37 @@
 </head>
 <body>
 
+<!-- ============ ícones ============             -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-trofeu" viewBox="0 0 24 24">
+      <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V19H7v2h10v-2h-4v-3.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
+    </symbol>
+    <symbol id="i-relatorio" viewBox="0 0 24 24">
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+      <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+      <path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
+    </symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24">
+      <rect width="16" height="16" x="4" y="4" rx="2"/>
+      <rect width="6" height="6" x="9" y="9" rx="1"/>
+      <path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/>
+      <path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>
+    </symbol>
+    <symbol id="i-dado" viewBox="0 0 24 24">
+      <rect width="18" height="18" x="3" y="3" rx="2"/>
+      <path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/>
+      <path d="M16 16h.01"/><path d="M12 12h.01"/>
+    </symbol>
+    <symbol id="i-jogar" viewBox="0 0 24 24">
+      <polygon points="6 3 20 12 6 21 6 3"/>
+    </symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24">
+      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="crt" aria-hidden="true"></div>
 
 <div class="aplicacao">
@@ -26,9 +57,12 @@
       <b>TERM</b>inal<span class="comando">:~$ jogar --letras 5 --tentativas 6</span>
     </span>
     <span class="barra-info">
-      <span>jogador <strong id="info-jogador">—</strong></span>
+      <span>jogador <button class="nome-jogador" id="info-jogador" type="button"
+                           title="trocar de jogador">—</button></span>
       <span>rodada <strong id="info-rodada">—</strong></span>
       <span>tentativa <strong id="info-tentativa">1</strong>/6</span>
+      <button class="icone-barra" id="btn-ranking" type="button"
+              title="ranking" aria-label="abrir ranking"><svg class="icone cheio" aria-hidden="true"><use href="#i-trofeu"/></svg></button>
     </span>
   </header>
 
@@ -52,8 +86,8 @@
       </p>
 
       <div class="painel-acoes">
-        <button class="botao" id="btn-relatorio" type="button">▤ relatório</button>
-        <button class="botao" id="btn-resolver" type="button">⚙ resolver</button>
+        <button class="botao" id="btn-relatorio" type="button"><svg class="icone" aria-hidden="true"><use href="#i-relatorio"/></svg>relatório</button>
+        <button class="botao" id="btn-resolver" type="button"><svg class="icone" aria-hidden="true"><use href="#i-chip"/></svg>resolver</button>
       </div>
     </aside>
 
@@ -78,7 +112,7 @@
     </div>
 
     <div class="cartao-acoes">
-      <button class="botao primario" id="btn-entrar" type="button">▶ começar</button>
+      <button class="botao primario" id="btn-entrar" type="button"><svg class="icone" aria-hidden="true"><use href="#i-jogar"/></svg>começar</button>
     </div>
     <p class="dica">ou pressione <b>enter</b></p>
 
@@ -93,7 +127,7 @@
       <span class="marca" id="titulo-relatorio">
         <b>TERM</b>inal<span class="comando">:~$ stats <span id="rel-comando">—</span></span>
       </span>
-      <button class="fechar" id="btn-fechar-relatorio" type="button" aria-label="fechar relatório">×</button>
+      <button class="fechar" id="btn-fechar-relatorio" type="button" aria-label="fechar relatório"><svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg></button>
     </div>
 
     <p class="veredito" id="rel-veredito"></p>
@@ -111,7 +145,7 @@
     </div>
 
     <div class="cartao-acoes">
-      <button class="botao primario" id="btn-sortear" type="button">⚄ sortear outra palavra</button>
+      <button class="botao primario" id="btn-sortear" type="button"><svg class="icone" aria-hidden="true"><use href="#i-dado"/></svg>sortear outra palavra</button>
     </div>
     <p class="dica">ou pressione <b>enter</b></p>
 
@@ -126,7 +160,7 @@
       <span class="marca" id="titulo-resolver">
         <b>TERM</b>inal<span class="comando">:~$ resolver --confirmar</span>
       </span>
-      <button class="fechar" id="btn-fechar-resolver" type="button" aria-label="cancelar">×</button>
+      <button class="fechar" id="btn-fechar-resolver" type="button" aria-label="cancelar"><svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg></button>
     </div>
 
     <p class="veredito">
@@ -141,16 +175,31 @@
 
     <div class="cartao-acoes">
       <button class="botao" id="btn-cancelar" type="button">cancelar</button>
-      <button class="botao perigo" id="btn-executar" type="button">⚙ executar solucionador</button>
+      <button class="botao perigo" id="btn-executar" type="button"><svg class="icone" aria-hidden="true"><use href="#i-chip"/></svg>executar solucionador</button>
     </div>
     <p class="dica">esc cancela</p>
 
   </div>
 </div>
 
-<!-- ============ scripts ============
-     Ordem obrigatória: cada módulo depende dos anteriores.
-     config cria o namespace; app orquestra e é o último.     -->
+<!-- ============ ranking ============ -->
+<div class="sobreposicao" id="modal-ranking" role="dialog" aria-modal="true" aria-labelledby="titulo-ranking">
+  <div class="cartao largo">
+
+    <div class="cartao-topo">
+      <span class="marca" id="titulo-ranking">
+        <b>TERM</b>inal<span class="comando">:~$ rank</span>
+      </span>
+      <button class="fechar" id="btn-fechar-ranking" type="button" aria-label="fechar ranking"><svg class="icone" aria-hidden="true"><use href="#i-fechar"/></svg></button>
+    </div>
+
+    <div id="rank-corpo"></div>
+
+    <p class="dica">esc fecha</p>
+
+  </div>
+</div>
+
 <script src="js/core/config.js"></script>
 <script src="js/core/utils.js"></script>
 <script src="js/core/dictionary.js"></script>

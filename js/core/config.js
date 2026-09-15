@@ -34,6 +34,14 @@ window.TERM = window.TERM || {};
        o instante com o desenho que submeterTentativa agenda. */
     SOLVER_PAUSA: 150,
 
+    /* Ranking */
+    ARMAZENAMENTO_CHAVE: "terminal.ranking",
+
+    /* Partidas de referência que todo jogador carrega antes das
+       próprias. É o que segura quem tem pouca amostra sem
+       precisar excluí-lo da lista. */
+    RANKING_PESO: 5,
+
     /* Estados possíveis de uma letra avaliada */
     ESTADO: {
       CORRETA: "correct",
@@ -124,7 +132,24 @@ window.TERM = window.TERM || {};
       relatorioSolverFalhou: function (palavra) {
         return "o algoritmo não encontrou — a palavra era <b>" + palavra + "</b>";
       },
-      relatorioSolverSub: "partida automática — fora do registro de desempenho"
+      relatorioSolverSub: "partida automática — fora do registro de desempenho",
+
+      /* Ranking */
+      rankingVazio: "nenhuma partida registrada ainda",
+      rankingClassificados: "CLASSIFICAÇÃO",
+      rankingColunas: [
+        { rotulo: "#",             ajuda: "posição" },
+        { rotulo: "jogador",       ajuda: "quem jogou" },
+        { rotulo: "pontos",        ajuda: "média com derrota — menor é melhor" },
+        { rotulo: "rodadas",       ajuda: "partidas jogadas" },
+        { rotulo: "vitórias",      ajuda: "partidas vencidas" },
+        { rotulo: "taxa",          ajuda: "percentual de vitórias" },
+        { rotulo: "tent./vitória", ajuda: "tentativas por acerto" },
+        { rotulo: "tempo",         ajuda: "mediana das vitórias" }
+      ],
+      rankingConvidado: "partidas sem identificação",
+      abandonou: "partida abandonada conta como derrota",
+      trocarJogador: "trocar de jogador"
     }
   };
 

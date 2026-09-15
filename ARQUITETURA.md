@@ -17,7 +17,7 @@ termo/
     │   ├── utils.js        funções puras
     │   ├── dictionary.js   duas listas: respostas e palavras aceitas
     │   ├── engine.js       avaliação da tentativa e sorteio
-    │   └── state.js        jogador, partida, percurso e estatísticas
+    │   └── state.js        jogador, partida, percurso, estatísticas e ranking
     ├── ui/                 apresentação — só desenha
     │   ├── board.js        grade
     │   ├── keyboard.js     teclado virtual
@@ -108,9 +108,23 @@ A ordem das tags `<script>` no `index.html` é obrigatória e está comentada l�
 `config.js` cria o namespace, `app.js` fecha a cadeia.
 
 **Persistência isolada em dois métodos.** `estatisticas.carregar` e
-`estatisticas.salvar` são os únicos pontos que tocariam armazenamento. Para
-gravar entre sessões basta trocar o corpo deles por `localStorage`; nenhum outro
-arquivo muda.
+`estatisticas.salvar` são os únicos pontos que tocam `localStorage`. Os dois
+lidam com o **acervo inteiro** de jogadores, não com um registro só; quem quer o
+registro corrente usa `estatisticas.dados`, que aponta para ele.
+
+Nada de armazenamento pode derrubar uma partida. Até obter a referência
+`window.localStorage` vai dentro de um `try` — a leitura da propriedade lança
+sozinha no Safari sob `file://` e com dados de site bloqueados. Escrita que
+falhe por cota morre em `salvar`, e o jogo segue sem persistir, exatamente como
+se comportava antes de existir armazenamento.
+
+`salvar` relê antes de gravar e encaixa apenas o registro corrente: duas abas
+abertas gravam o acervo inteiro e apagariam as linhas uma da outra.
+
+Todo registro lido passa por `normalizarRegistro`, que coage cada campo ao tipo
+esperado. Sem isso, um registro corrompido faria `registrar` lançar **depois** de
+a partida já estar encerrada — e como o dado mora no armazenamento, recarregar
+não recuperaria: o jogo ficaria impossível de jogar.
 
 **Textos centralizados em `config.js`.** Mensagens de erro, ajuda e encerramento
 não estão espalhadas pelo código. Ajuste de redação acontece em um lugar só.
@@ -153,6 +167,14 @@ cada `INTERVALO_CRONOMETRO`. O intervalo nasce em `abrirRelatorio` e morre em
 `fecharRelatorio` — por onde passam os quatro caminhos de fechamento — e se
 desliga sozinho se a partida terminar com a janela aberta. Quem decide se ainda
 há o que acompanhar é o core, por `percurso.emAndamento`.
+
+**Ícones como sprite SVG embutido, não biblioteca.** Os desenhos vivem uma vez
+só num `<svg>` oculto no topo do `index.html`, e cada botão referencia por
+`<use href="#i-...">`. Uma biblioteca por CDN funcionaria, mas o requisito de
+abrir por duplo clique significa que sem internet os botões ficariam vazios —
+enquanto a fonte, que também vem de fora, ao menos cai num monoespaçado de
+reserva. Embutido não há essa dependência, e o traço herda a cor do tema por
+`currentColor`. Para somar um ícone, copia-se mais um `<symbol>`.
 
 **Medidas em variáveis CSS.** O tamanho da célula e da tecla é `--celula` e
 `--tecla-largura`. Os pontos de quebra redefinem essas variáveis em vez de
@@ -218,6 +240,55 @@ contêm alguma das 11 letras que as aberturas não testam
 O solucionador trabalha com os dois universos: chuta de `validas` e filtra sobre
 `solucoes`. É isso que lhe permite jogar uma palavra que não pode vencer só para
 separar as candidatas.
+
+## Ranking
+
+Ordena por **pontos**, menor primeiro — a média de tentativas gastas por partida,
+com duas correções. Total de acertos mediria volume, não habilidade: quem joga
+mais lideraria.
+
+**A derrota custa `LINHAS + 1` tentativas.** Você teve seis chances e não achou,
+então gastou mais que o máximo. Sem isso, a média olharia só as vitórias e quem
+vence pouco mas vence bem lideraria: medido, 5 vitórias em 45 partidas — 11% de
+aproveitamento — davam o primeiro lugar.
+
+**A média é amortecida contra a referência do grupo.** Cada jogador carrega
+`RANKING_PESO` partidas valendo o desempenho médio de todos:
+
+    pontos = (tentativas gastas + peso × referência) / (partidas + peso)
+
+Com uma partida, só 1/6 do número é seu e o resto te segura perto do meio da
+tabela; com vinte e cinco, o seu desempenho domina. Isso substitui um corte de
+partidas mínimas, e é melhor por duas razões: é **gradual**, em vez de uma porta
+que abre de uma vez, e **ninguém precisa ficar fora da lista** — quem começou
+agora se vê ranqueado desde a primeira rodada. A referência sai do próprio grupo,
+então a régua se calibra sozinha.
+
+A coluna **acerto em** exibe a média crua das vitórias, que é legível e concreta
+("acerta em 3,40 tentativas") — mas conta só as vitórias, e por isso não serve
+para ordenar. Ela informa; quem ordena é a de pontos.
+
+**Cada título de coluna carrega a própria explicação** em `title`, porque um
+rótulo de uma palavra não distingue "pontos" de "acerto em". Os textos ficam em
+`config.TEXTOS.rankingColunas`, junto do rótulo. E **seguidas** traz atual e
+recorde na mesma célula (`3/9`): em duas colunas pareciam repetição, já que só
+divergem depois de o jogador perder no meio de uma boa série.
+
+O tempo é exibido pela **mediana**, não pela média: o relógio conta tempo de
+parede, e uma partida deixada aberta destruiria a média do jogador para sempre.
+
+`estatisticas.ranking()` devolve a lista pronta e ordenada. Pontuar e ordenar são
+regras, então vivem no core; `modals.js` só escreve no DOM.
+
+**Largar uma partida no meio conta derrota** (`app.encerrarAbandono`). Antes do
+ranking isso era inofensivo, porque `novaPartida` nunca registrava nada e o
+jogador só enganava a si mesmo. Com a ordenação por média de tentativas, desistir
+de uma partida ruim passaria a ser a jogada ótima. O registro acontece **antes**
+de `estatisticas.entrar` na troca de jogador: a partida largada é de quem sai.
+
+Os jogadores são indexados pela forma normalizada do nome, com prefixo — "joão",
+"Joao" e "JOÃO" são a mesma pessoa, e o prefixo impede que alguém chamado
+`__proto__` escreva no protótipo do mapa em vez de criar uma entrada.
 
 ## A partida da máquina não conta
 

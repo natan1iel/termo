@@ -32,7 +32,14 @@
     /* ---------- Ciclo de partida ---------- */
 
     entrarNoJogo: function () {
+      /* Antes de trocar de registro: a partida largada pertence
+         ao jogador que está saindo. */
+      this.encerrarAbandono();
+
       var nome = TERM.jogador.definir(TERM.modals.nomeInformado());
+      /* Antes de novaPartida: aplicarResetPendente age sobre o
+         registro corrente, e ele precisa já ser o do novo nome. */
+      TERM.estatisticas.entrar(nome);
       this.definirTexto("#info-jogador", nome);
       TERM.modals.fecharLogin();
       this.novaPartida();
@@ -44,6 +51,7 @@
       if (TERM.solver.emExecucao) return;
 
       TERM.solver.resolveuUltima = false;
+      this.encerrarAbandono();
       TERM.estatisticas.aplicarResetPendente();
       TERM.modals.fecharRelatorio();
 
@@ -60,6 +68,16 @@
 
       this.atualizarBarra();
       this.desenharEntrada();
+    },
+
+    /* Largar uma partida no meio conta derrota: sem isso, com o
+       ranking por média de tentativas, desistir de uma partida
+       ruim seria a jogada ótima. */
+    encerrarAbandono: function () {
+      if (!TERM.percurso.emAndamento()) return;
+      if (TERM.partida.encerrada || TERM.partida.linha === 0) return;
+      TERM.percurso.encerrar(false);
+      TERM.estatisticas.registrarAbandono();
     },
 
     /* ---------- Entrada ---------- */
@@ -172,7 +190,7 @@
       partida.encerrada = true;
 
       var duracao = TERM.percurso.encerrar(true) || 0;
-      TERM.estatisticas.registrar(true, duracao);
+      TERM.estatisticas.registrar(true, duracao, tentativas);
       TERM.board.desativar();
 
       var espera = TERM.board.duracaoRevelacao();
@@ -227,10 +245,20 @@
 
       document.querySelector("#btn-resolver")
         .addEventListener("click", function () {
+          if (TERM.modals.aberta()) return;
           if (!TERM.partida.encerrada && !TERM.solver.emExecucao) {
             TERM.modals.abrirResolver();
           }
         });
+
+      document.querySelector("#btn-ranking")
+        .addEventListener("click", function () { self.consultarRanking(); });
+
+      document.querySelector("#info-jogador")
+        .addEventListener("click", function () { self.trocarJogador(); });
+
+      document.querySelector("#btn-fechar-ranking")
+        .addEventListener("click", function () { TERM.modals.fecharRanking(); });
 
       document.querySelector("#btn-sortear")
         .addEventListener("click", function () { self.novaPartida(); });
@@ -260,12 +288,22 @@
     tratarTeclaFisica: function (evento) {
       if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
 
+      /* Com um botão focado, o preventDefault do Enter suprimiria
+         o clique nativo e a tecla viraria uma tentativa. */
+      if (evento.target && evento.target.tagName === "BUTTON") return;
+
       var aberta = TERM.modals.aberta();
       if (aberta) {
         if (evento.key === "Escape") {
           /* O login não fecha com Esc: identificar-se é obrigatório. */
           if (aberta === TERM.modals.resolver) TERM.modals.fecharResolver();
           else if (aberta === TERM.modals.relatorio) TERM.modals.fecharRelatorio();
+          else if (aberta === TERM.modals.ranking) TERM.modals.fecharRanking();
+          /* No arranque o login não fecha: identificar-se é
+             obrigatório. Reaberto para trocar de jogador, fecha. */
+          else if (aberta === TERM.modals.login && TERM.partida.rodada > 0) {
+            TERM.modals.fecharLogin();
+          }
           return;
         }
         if (evento.key === "Enter") {
@@ -309,8 +347,20 @@
       if (letra.length === 1 && /^[A-Z]$/.test(letra)) this.tratarTecla(letra);
     },
 
-    consultarRelatorio: function () {
+    consultarRanking: function () {
+      if (TERM.solver.emExecucao || TERM.modals.aberta()) return;
+      TERM.modals.abrirRanking();
+    },
+
+    /* Reabre o login, que já faz tudo: define, atualiza a barra,
+       fecha e começa partida nova. */
+    trocarJogador: function () {
       if (TERM.solver.emExecucao) return;
+      TERM.modals.abrirLogin(TERM.jogador.nome);
+    },
+
+    consultarRelatorio: function () {
+      if (TERM.solver.emExecucao || TERM.modals.aberta()) return;
       if (!TERM.partida.encerrada) return TERM.modals.abrirRelatorio(null);
       var ultimo = TERM.partida.resultados[TERM.partida.resultados.length - 1];
       var venceu = ultimo && TERM.engine.venceu(ultimo);

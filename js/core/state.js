@@ -185,52 +185,194 @@
 
   /* ---------- Estatísticas ---------- */
 
-  var VAZIAS = {
-    jogos: 0,
-    vitorias: 0,        // total absoluto, usado em médias
-    sequencia: 0,       // vitórias seguidas na série corrente
-    recorde: 0,
-    derrotas: 0,
-    zerarNaProxima: false,
-    tempoTotalMs: 0,
-    melhorTempoMs: null
-  };
+  /* O acesso à própria propriedade localStorage pode lançar —
+     Safari sob file://, dados de site bloqueados —, então nem
+     obter a referência é seguro fora de um try. */
+  function armazenamento() {
+    try {
+      return window.localStorage || null;
+    } catch (erro) {
+      return null;
+    }
+  }
+
+  function registroVazio(nome) {
+    return {
+      nome: nome || cfg.NOME_PADRAO,
+      jogos: 0,
+      vitorias: 0,
+      derrotas: 0,
+      abandonos: 0,
+      sequencia: 0,            // vitórias seguidas na série corrente
+      recorde: 0,
+      zerarNaProxima: false,
+      tentativas: new Array(cfg.LINHAS).fill(0),  // vitórias por nº de chutes
+      duracoes: [],            // das vitórias, em segundos
+      melhorTempoS: null,
+      ultimoJogo: null
+    };
+  }
+
+  function inteiro(valor) {
+    var n = Math.floor(Number(valor));
+    return isFinite(n) && n > 0 ? n : 0;
+  }
+
+  /* Registro corrompido faria registrar() lançar depois de a
+     partida já estar encerrada — e como o dado mora no
+     armazenamento, recarregar não recuperaria. Toda leitura
+     passa por aqui. */
+  function normalizarRegistro(bruto, nome) {
+    var limpo = registroVazio(nome);
+    if (!bruto || typeof bruto !== "object") return limpo;
+
+    if (typeof bruto.nome === "string" && bruto.nome) limpo.nome = bruto.nome;
+    limpo.jogos = inteiro(bruto.jogos);
+    limpo.vitorias = inteiro(bruto.vitorias);
+    limpo.derrotas = inteiro(bruto.derrotas);
+    limpo.abandonos = inteiro(bruto.abandonos);
+    limpo.sequencia = inteiro(bruto.sequencia);
+    limpo.recorde = inteiro(bruto.recorde);
+    limpo.zerarNaProxima = bruto.zerarNaProxima === true;
+    limpo.ultimoJogo = inteiro(bruto.ultimoJogo) || null;
+
+    if (Array.isArray(bruto.tentativas)) {
+      for (var i = 0; i < cfg.LINHAS; i++) {
+        limpo.tentativas[i] = inteiro(bruto.tentativas[i]);
+      }
+    }
+    if (Array.isArray(bruto.duracoes)) {
+      limpo.duracoes = bruto.duracoes.map(inteiro).filter(function (s) {
+        return s > 0;
+      });
+    }
+    limpo.melhorTempoS = inteiro(bruto.melhorTempoS) || null;
+    return limpo;
+  }
+
+  /* O prefixo evita que um jogador chamado __proto__ escreva no
+     protótipo do mapa em vez de criar uma entrada. */
+  function chaveDe(nome) {
+    return "j:" + TERM.utils.normalizar(nome);
+  }
+
+  function mediana(lista) {
+    if (!lista.length) return null;
+    var ordenada = lista.slice().sort(function (a, b) { return a - b; });
+    var meio = ordenada.length >> 1;
+    return ordenada.length % 2
+      ? ordenada[meio]
+      : (ordenada[meio - 1] + ordenada[meio]) / 2;
+  }
 
   TERM.estatisticas = {
-    dados: null,
+    dados: null,        // aponta para o registro do jogador corrente
+    jogadores: {},
+    chave: null,
 
     init: function () {
-      this.dados = this.carregar();
+      this.jogadores = this.carregar();
+      this.dados = registroVazio();   // nunca null: há leitores antes do login
+      this.chave = null;
       return this;
     },
 
-    /* Únicos pontos que tocariam armazenamento. Para gravar
-       entre sessões, trocar o corpo dos dois por localStorage. */
+    /* Únicos dois pontos que tocam armazenamento. */
     carregar: function () {
-      return Object.assign({}, VAZIAS);
+      var ls = armazenamento();
+      if (!ls) return {};
+
+      var bruto;
+      try {
+        bruto = JSON.parse(ls.getItem(cfg.ARMAZENAMENTO_CHAVE));
+      } catch (erro) {
+        return {};
+      }
+      if (!bruto || typeof bruto !== "object" || Array.isArray(bruto) ||
+          bruto.versao !== 1 || !bruto.jogadores ||
+          typeof bruto.jogadores !== "object") {
+        return {};
+      }
+
+      var limpos = {};
+      for (var chave in bruto.jogadores) {
+        if (!Object.prototype.hasOwnProperty.call(bruto.jogadores, chave)) continue;
+        limpos[chave] = normalizarRegistro(bruto.jogadores[chave]);
+      }
+      return limpos;
     },
 
+    /* Relê e encaixa só o registro corrente: duas abas abertas
+       não podem apagar as linhas uma da outra. Falha de escrita
+       morre aqui — a partida não quebra por cota estourada. */
     salvar: function () {
-      /* sem persistência entre sessões nesta versão */
+      var ls = armazenamento();
+      if (!ls || !this.chave) return;
+
+      var todos = this.carregar();
+      todos[this.chave] = this.dados;
+      this.jogadores = todos;
+
+      try {
+        ls.setItem(cfg.ARMAZENAMENTO_CHAVE,
+                   JSON.stringify({ versao: 1, jogadores: todos }));
+      } catch (erro) {
+        /* sem espaço ou sem permissão: segue a partida sem persistir */
+      }
     },
 
-    /* A derrota não zera a sequência agora: o relatório logo
-       depois mostraria zero e o jogador perderia de vista a
-       série que acabou de fazer. Zera na próxima partida. */
-    registrar: function (venceu, duracaoMs) {
+    /* Precisa rodar antes de novaPartida, senão o reset pendente
+       de quem sai cai no registro de quem entra. */
+    entrar: function (nome) {
+      /* Sobrepõe o disco ao que já está em memória, em vez de
+         substituir: sem armazenamento, carregar() devolve vazio
+         e trocar de jogador apagaria todos os outros. */
+      var doDisco = this.carregar();
+      for (var k in doDisco) {
+        if (Object.prototype.hasOwnProperty.call(doDisco, k)) {
+          this.jogadores[k] = doDisco[k];
+        }
+      }
+
+      this.chave = chaveDe(nome);
+
+      var registro =
+        Object.prototype.hasOwnProperty.call(this.jogadores, this.chave)
+          ? this.jogadores[this.chave]
+          : registroVazio(nome);
+
+      registro.nome = nome;           // a grafia mais recente vence
+      this.dados = registro;
+      this.jogadores[this.chave] = registro;
+      return registro;
+    },
+
+    registrar: function (venceu, duracaoMs, tentativas) {
       if (TERM.partida.contabilizada) return;
       TERM.partida.contabilizada = true;
 
       var d = this.dados;
       d.jogos++;
+      d.ultimoJogo = Date.now();
 
       if (venceu) {
         d.vitorias++;
         d.sequencia++;
         if (d.sequencia > d.recorde) d.recorde = d.sequencia;
-        d.tempoTotalMs += duracaoMs;
-        if (d.melhorTempoMs === null || duracaoMs < d.melhorTempoMs) {
-          d.melhorTempoMs = duracaoMs;
+
+        /* A derrota chama sem o terceiro argumento; nunca indexar
+           com undefined. */
+        var indice = Number(tentativas) - 1;
+        if (indice >= 0 && indice < d.tentativas.length) d.tentativas[indice]++;
+
+        /* Piso de 1s: arredondar para zero descartaria a
+           duração de uma vitória relâmpago em silêncio. */
+        var segundos = Math.max(1, Math.round(Number(duracaoMs) / 1000));
+        if (isFinite(segundos)) {
+          d.duracoes.push(segundos);
+          if (d.melhorTempoS === null || segundos < d.melhorTempoS) {
+            d.melhorTempoS = segundos;
+          }
         }
       } else {
         d.derrotas++;
@@ -240,16 +382,112 @@
       this.salvar();
     },
 
+    /* Partida largada no meio conta derrota. Sem isso, com o
+       ranking ordenado por média de tentativas, desistir de uma
+       partida ruim seria a jogada ótima. */
+    registrarAbandono: function () {
+      if (TERM.partida.contabilizada) return false;
+      this.dados.abandonos++;
+      this.registrar(false, 0);
+      return true;
+    },
+
     aplicarResetPendente: function () {
-      if (!this.dados.zerarNaProxima) return;
+      if (!this.dados || !this.dados.zerarNaProxima) return;
       this.dados.sequencia = 0;
       this.dados.zerarNaProxima = false;
       this.salvar();
     },
 
-    mediaTempoMs: function () {
-      if (this.dados.vitorias === 0) return null;
-      return this.dados.tempoTotalMs / this.dados.vitorias;
+    /* Quem perdeu e trocou de jogador deixa o reset pendente
+       parado no registro; a sequência exibida seria fantasma. */
+    sequenciaEfetiva: function (registro) {
+      return registro.zerarNaProxima ? 0 : registro.sequencia;
+    },
+
+    /* Lista pronta para desenhar. Ordenar é regra, por isso mora
+       aqui e não na camada de interface.
+
+       A pontuação é a média de tentativas gastas por partida,
+       com a derrota custando uma a mais que o máximo, amortecida
+       contra a referência do grupo. Duas consequências:
+
+       - derrota pesa. Sem isso, quem vence pouco mas vence bem
+         lidera: 5 vitórias em 45 partidas davam o 1º lugar.
+       - amostra pequena não lidera por sorte. Cada jogador
+         carrega RANKING_PESO partidas valendo a referência, que
+         vão perdendo peso conforme ele joga. É gradual, e
+         dispensa excluir ninguém da lista por mínimo de jogos. */
+    ranking: function (peso) {
+      var pesoRef = peso === undefined ? cfg.RANKING_PESO : peso;
+      var penalidade = cfg.LINHAS + 1;   // não achou em 6: gastou 7
+      var self = this;
+      var linhas = [];
+      var somaGrupo = 0, jogosGrupo = 0;
+
+      for (var chave in this.jogadores) {
+        if (!Object.prototype.hasOwnProperty.call(this.jogadores, chave)) continue;
+        var r = this.jogadores[chave];
+        if (!r.jogos) continue;
+
+        var somaVitorias = 0;
+        for (var i = 0; i < r.tentativas.length; i++) {
+          somaVitorias += (i + 1) * r.tentativas[i];
+        }
+        var gasto = somaVitorias + penalidade * r.derrotas;
+        somaGrupo += gasto;
+        jogosGrupo += r.jogos;
+
+        linhas.push({
+          chave: chave,
+          nome: r.nome,
+          jogos: r.jogos,
+          vitorias: r.vitorias,
+          derrotas: r.derrotas,
+          abandonos: r.abandonos,
+          gasto: gasto,
+          taxa: r.vitorias / r.jogos,
+          media: r.vitorias ? somaVitorias / r.vitorias : null,
+          medianaS: mediana(r.duracoes),
+          melhorTempoS: r.melhorTempoS,
+          sequencia: self.sequenciaEfetiva(r),
+          recorde: r.recorde
+        });
+      }
+
+      /* A referência é o desempenho do próprio grupo, então a
+         régua se calibra sozinha em vez de ser um número fixo. */
+      var referencia = jogosGrupo ? somaGrupo / jogosGrupo : penalidade;
+
+      linhas.forEach(function (l) {
+        l.pontos = (l.gasto + pesoRef * referencia) / (l.jogos + pesoRef);
+      });
+
+      linhas.sort(function (a, b) {
+        return a.pontos - b.pontos || b.taxa - a.taxa || b.jogos - a.jogos;
+      });
+
+      return {
+        referencia: referencia,
+        penalidade: penalidade,
+        peso: pesoRef,
+        linhas: linhas
+      };
+    },
+
+    limpar: function () {
+      this.jogadores = {};
+      if (this.chave) {
+        this.dados = registroVazio(this.dados.nome);
+        this.jogadores[this.chave] = this.dados;
+      }
+      var ls = armazenamento();
+      if (!ls) return;
+      try {
+        ls.removeItem(cfg.ARMAZENAMENTO_CHAVE);
+      } catch (erro) {
+        /* nada a fazer: já foi limpo em memória */
+      }
     }
   };
 

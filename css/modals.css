@@ -26,6 +26,7 @@
   padding: 16px 20px 20px;
 }
 .cartao.estreito { max-width: 420px; }
+.cartao.largo { max-width: 740px; }
 
 .cartao-topo {
   display: flex;
@@ -38,6 +39,9 @@
 }
 
 .fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: inherit;
   background: transparent;
   border: 1px solid var(--borda);
@@ -48,6 +52,7 @@
   cursor: pointer;
   flex-shrink: 0;
 }
+.fechar .icone { width: 14px; height: 14px; vertical-align: 0; }
 .fechar:hover { border-color: var(--fosforo-medio); color: var(--fosforo); }
 .fechar:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
 
@@ -175,6 +180,67 @@
 
 .cartao-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
 .cartao-acoes .botao { flex: 1; min-width: 130px; text-align: center; }
+
+/* ---------- ranking ---------- */
+
+/* Rolagem horizontal própria: a tabela é o único conteúdo do
+   projeto que não cabe em tela estreita. */
+.rank-rolagem { overflow-x: auto; margin-bottom: 18px; }
+
+/* Grade com traço em toda célula: lê-se como tabela, que é o
+   formato em que se compara linha a linha. */
+.rank-tabela {
+  display: grid;
+  grid-template-columns: 38px minmax(110px, 1fr) repeat(6, auto);
+  min-width: 560px;
+  border-top: 1px solid var(--fosforo-medio);
+  border-left: 1px solid var(--fosforo-medio);
+}
+
+.rank-tabela span {
+  padding: 8px 9px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fosforo-medio);
+  border-right: 1px solid var(--fosforo-medio);
+  border-bottom: 1px solid var(--fosforo-medio);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.rank-tabela .cabecalho {
+  background: var(--fosforo-fraco);
+  color: var(--fosforo);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: help;          /* cada título explica a coluna ao passar o mouse */
+}
+
+/* O nome é o que se procura primeiro: à esquerda e maior. */
+.rank-tabela .nome {
+  text-align: left;
+  font-size: 16px;
+  color: var(--fosforo);
+  text-overflow: ellipsis;
+}
+
+.rank-tabela .num { font-weight: 600; }
+
+/* É a coluna que ordena; merece ser achada de imediato. */
+.rank-tabela .pontos { color: var(--fosforo); font-weight: 600; }
+
+.rank-tabela .eu {
+  background: var(--fosforo-fraco);
+  color: var(--fosforo-claro);
+}
+
+
+.rank-nota {
+  font-size: 11px;
+  color: var(--fosforo-morto);
+  margin-bottom: 18px;
+}
 
 @media (max-width: 420px) {
   .estatisticas { grid-template-columns: repeat(2, 1fr); }
